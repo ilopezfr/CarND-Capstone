@@ -92,7 +92,7 @@ class WaypointUpdater(object):
         farthest_idx = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
         
-        outside_traffic_light_range = False # "-(self.stopline_wp_idx + 1)" is index of upcoming stop line - compare this position to vehicle position and check whether it is within TRAFFIC_LIGHT_DECELERATION_DISTANCE
+        outside_traffic_light_range = (self.stopline_wp_idx < -1) # "-(self.stopline_wp_idx + 1)" is index of upcoming stop line when traffic light is not red or yellow - compare this position to vehicle position and check whether it is within TRAFFIC_LIGHT_DECELERATION_DISTANCE
         if ((self.stopline_wp_idx == -1) or outside_traffic_light_range or (self.stopline_wp_idx >= farthest_idx)):
             lane.waypoints = base_waypoints
         else:
@@ -111,7 +111,7 @@ class WaypointUpdater(object):
             if vel < 1.:
                 vel = 0.
             
-            if (dist <= TRAFFIC_LIGHT_DECELERATION_DISTANCE):
+            if (dist <= TRAFFIC_LIGHT_DECELERATION_DISTANCE): # must also make sure that this only happens before the traffic light - maybe even stop doing this when you get really close
                 # close to traffic light based on map info
                 p.twist.twist.linear.x = min(vel, (wp.twist.twist.linear.x * TRAFFIC_LIGHT_DECELERATION_FACTOR), MAX_TRAFFIC_LIGHT_SPEED)
             else:

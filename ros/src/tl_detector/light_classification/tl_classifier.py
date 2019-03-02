@@ -36,7 +36,7 @@ class TLClassifier(object):
             text_string += " > 0.5"
         else:
             text_string += " <= 0.5"
-        rospy.loginfo(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
+        rospy.logwarn(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
         #print(output_dict['detection_boxes'][0]) # if we go for the 2 step approach
         if (output_dict['detection_scores'][0] > 0.5):
             if (output_dict['detection_classes'][0] == 3 ):

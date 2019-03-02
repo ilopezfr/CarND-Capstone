@@ -41,10 +41,10 @@ class Controller(object):
             self.throttle_controller.reset()
             return 0., 0., 0.
 
-        rospy.loginfo("----------------------------------------------------------------------")
+        rospy.logwarn("----------------------------------------------------------------------")
         #rospy.logwarn("Target angular vel: {0}".format(angular_vel))
-        rospy.loginfo("Target velocity  : {0}".format(linear_vel))
-        rospy.loginfo("Current velocity : {0}".format(current_vel))
+        rospy.logwarn("Target velocity  : {0}".format(linear_vel))
+        rospy.logwarn("Current velocity : {0}".format(current_vel))
 
         current_vel = self.vel_lpf.filt(current_vel)
         
@@ -70,7 +70,7 @@ class Controller(object):
             decel = max(vel_error, self.decel_limit)
             brake = abs(decel)*self.vehicle_mass*self.wheel_radius
 
-        rospy.loginfo("Throttle          : {0}".format(throttle))
-        rospy.loginfo("Braking           : {0}".format(brake))
+        rospy.logwarn("Throttle         : {0}".format(throttle))
+        rospy.logwarn("Braking          : {0}".format(brake))
 		
         return throttle, brake, steering
