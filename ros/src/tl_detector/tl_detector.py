@@ -13,7 +13,8 @@ import yaml
 import math
 from scipy.spatial import KDTree
 
-STATE_COUNT_THRESHOLD = 3
+LIGHT_PROCESS_THRESHOLD = 4
+STATE_COUNT_THRESHOLD = 3 / LIGHT_PROCESS_THRESHOLD # if we skip images we cannot wait until we see the same light state as often
 
 class TLDetector(object):
     def __init__(self):
@@ -52,6 +53,7 @@ class TLDetector(object):
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
+        self.traffic_count = 0
 
         rospy.spin()
 
@@ -78,14 +80,15 @@ class TLDetector(object):
         #rospy.logwarn("Image callback :")
         self.has_image = True
         self.camera_image = msg
-        frequency = 4
-        if not (self.state_count % frequency):
-            rospy.logwarn("Processing traffic light image")
+        if ((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0):
+		    # traffic light must be processed
+            #rospy.logwarn("Processing traffic light image")
             light_wp, state = self.process_traffic_lights()
         else:
             rospy.logwarn("Skipping processing traffic light image")
-            light_wp = -1
-            state = self.state
+            light_wp = light_wp # use initial or previous value
+            state = self.state # use initial or previous value
+		self.traffic_count += 1
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -96,9 +99,10 @@ class TLDetector(object):
         if self.state != state:
             self.state_count = 0
             self.state = state
-        elif self.state_count >= STATE_COUNT_THRESHOLD:
+		
+        if self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
+            light_wp = light_wp if ((state == TrafficLight.RED) OR (state == TrafficLight.YELLOW)) else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
@@ -193,11 +197,14 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
-            rospy.loginfo( "car_wp_idx: " + str(car_wp_idx) + "  stop_line_position idx: " + str(line_wp_idx))
+            rospy.loginfo("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+            rospy.loginfo("Correct light state    : {0}".format(closest_light.state))
             state = self.get_light_state(closest_light)
-            rospy.logwarn("Light State : {0}".format(state))
+			if state:
+                rospy.loginfo("Detected light state   : {0}".format(state))
+			else:
+                rospy.loginfo("No light state detected.")
             return line_wp_idx, state
-
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
