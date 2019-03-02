@@ -24,7 +24,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 20  # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number. Must look ahead more than 20 points as we otherwise don't react early enough to traffic lights!
 MAX_DECEL = .5
 TRAFFIC_LIGHT_DECELERATION_DISTANCE = 50
 TRAFFIC_LIGHT_DECELERATION_FACTOR = 0.7
@@ -92,7 +92,8 @@ class WaypointUpdater(object):
         farthest_idx = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
         
-        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
+        outside_traffic_light_range = False # "-(self.stopline_wp_idx + 1)" is index of upcoming stop line - compare this position to vehicle position and check whether it is within TRAFFIC_LIGHT_DECELERATION_DISTANCE
+        if ((self.stopline_wp_idx == -1) or outside_traffic_light_range or (self.stopline_wp_idx >= farthest_idx)):
             lane.waypoints = base_waypoints
         else:
             lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
@@ -110,7 +111,7 @@ class WaypointUpdater(object):
             if vel < 1.:
                 vel = 0.
             
-            if ((not (self.stopline_wp_idx == -1)) and ((self.stopline_wp_idx - waypoints[0]) < TRAFFIC_LIGHT_DECELERATION_DISTANCE)):
+            if (dist <= TRAFFIC_LIGHT_DECELERATION_DISTANCE):
                 # close to traffic light based on map info
                 p.twist.twist.linear.x = min(vel, (wp.twist.twist.linear.x * TRAFFIC_LIGHT_DECELERATION_FACTOR), MAX_TRAFFIC_LIGHT_SPEED)
             else:
