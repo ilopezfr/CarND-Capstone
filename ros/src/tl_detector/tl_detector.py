@@ -84,7 +84,7 @@ class TLDetector(object):
             light_wp, state = self.process_traffic_lights()
         else:
             rospy.logwarn("Skipping processing traffic light image")
-			light_wp = -1
+            light_wp = -1
             state = self.state
 
         '''
