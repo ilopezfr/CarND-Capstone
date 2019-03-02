@@ -14,10 +14,10 @@ class Controller(object):
             wheel_base, steer_ratio, 0.1, max_lat_accel, max_steer_angle)
 
         kp = 0.3
-        ki = 0.1
+        ki = 0.001
         kd = 0.6
         mn = 0.
-        mx = 0.1
+        mx = 0.3
         self.throttle_controller = PID(kp, ki, kd, mn, mx)
 
         tau = 0.5
@@ -63,9 +63,10 @@ class Controller(object):
         if linear_vel == 0. and current_vel < 0.1:
             throttle = 0
             brake = 700  # N*m # 700 for real car - simulator would only require 400
+        
         elif throttle < 0.1 and vel_error < 0:
             throttle = 0
             decel = max(vel_error, self.decel_limit)
-            brake = abs(decel) * self.vehicle_mass*self.wheel_radius
+            brake = abs(decel)*self.vehicle_mass*self.wheel_radius
 
         return throttle, brake, steering
