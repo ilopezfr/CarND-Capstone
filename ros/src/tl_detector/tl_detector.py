@@ -85,10 +85,10 @@ class TLDetector(object):
             #rospy.logwarn("Processing traffic light image")
             light_wp, state = self.process_traffic_lights()
         else:
-            rospy.logwarn("Skipping processing traffic light image")
-            light_wp = light_wp # use initial or previous value
-            state = self.state # use initial or previous value
-		self.traffic_count += 1
+            rospy.loginfo("Skipping processing traffic light image.")
+            light_wp = self.last_wp # use previous value
+            state = self.last_state # use previous value
+        self.traffic_count += 1
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -102,7 +102,7 @@ class TLDetector(object):
 		
         if self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if ((state == TrafficLight.RED) OR (state == TrafficLight.YELLOW)) else -1
+            light_wp = light_wp if ((state == TrafficLight.RED) or (state == TrafficLight.YELLOW)) else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
@@ -157,7 +157,7 @@ class TLDetector(object):
 
         if(not self.has_image):
             self.prev_light_loc = None
-            return False
+            return TrafficLight.UNKNOWN
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
@@ -198,12 +198,9 @@ class TLDetector(object):
 
         if closest_light:
             rospy.loginfo("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
-            rospy.loginfo("Correct light state    : {0}".format(closest_light.state))
             state = self.get_light_state(closest_light)
-			if state:
-                rospy.loginfo("Detected light state   : {0}".format(state))
-			else:
-                rospy.loginfo("No light state detected.")
+            rospy.loginfo("Correct light state    : {0}".format(closest_light.state))
+            rospy.loginfo("Detected light state   : {0}".format(state))
             return line_wp_idx, state
         return -1, TrafficLight.UNKNOWN
 
