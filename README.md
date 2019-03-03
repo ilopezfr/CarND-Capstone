@@ -11,9 +11,9 @@ In this project we worked together as a team.
 
 The goal of this project is to program the [Udacity Carla vehicle](docu_images/190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulator environment and a real environment.
 
-The Udacity Carla vehicle provides a [ROS](http://www.ros.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ros](https://bitbucket.org/DataspeedInc/dbw_mkz_ros) from [Dataspeed Inc](https://www.dataspeedinc.com/).
+The Udacity Carla vehicle provides a [ROS](http://www.ROS.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ROS](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS) from [Dataspeed Inc](https://www.dataspeedinc.com/).
 
-The connection of the different ros nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification uses [Convolutional Neutral Networks (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) and follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
+The connection of the different ROS nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification uses [Convolutional Neutral Networks (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) and follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
 
 The following table shows an overview of the most important files:
 
@@ -21,20 +21,19 @@ The following table shows an overview of the most important files:
 |------|-------------|
 | README.md | This file |
 | data/ | Folder containing waypoint information (maps) and camera calibration data |
-| ros/launch/styx.launch | Launch script for simulator environment |
-| ros/launch/site.launch | Launch script for real environment |
-| src/styx/ | Folder containing scripts to connect ros to the simulator by providing input/output ros topics |
+| ROS/launch/styx.launch | Launch script for simulator environment |
+| ROS/launch/site.launch | Launch script for real environment |
+| src/styx/ | Folder containing scripts to connect ROS to the simulator by providing input/output ROS topics |
 | src/tl_detector/tl_detector.py | Traffic light detection script (uses src/tl_detector/light_classification/tl_classifier.py) |
 | src/tl_detector/light_classification/tl_classifier.py | Traffic light classification script (leverages TensorFlow CNN model) |
 | src/tl_detector/light_classification/model/frozen_inference_graph.pb | TensorFlow CNN model to classify traffic lights in images |
-| src/twist_controller/dbw_node.py | Drive-by-wire node that handles all related ros topics |
-| src/twist_controller/dbw_test.py | Script that records drive-by-wire data |
+| src/twist_controller/dbw_node.py | Drive-by-wire node that handles all related ROS topics |
 | src/twist_controller/dbw_test.py | Script that records drive-by-wire data |
 | src/twist_controller/twist_controller.py | Script that determines throttle and braking |
 | src/twist_controller/yaw_controller.py | Script that determines steering |
 | src/waypoint_follower/ | Folder containing scripts to determine drive-by-wire signals to follow the desired waypoints |
 | src/waypoint_loader/ | Folder containing scripts to load the necessary waypoints (map) |
-| src/waypoint_updater/waypoint_updater.py | Waypoint node that listens to the traffic light ros topic and determins the desired speed at each waypoint ahead |
+| src/waypoint_updater/waypoint_updater.py | Waypoint node that listens to the traffic light ROS topic and determins the desired speed at each waypoint ahead |
 | Traffic_Light_Detection/ | Folder containing everything related to training the TensorFlow CNN model for traffic light classification |
 
 ---
@@ -42,20 +41,24 @@ The following table shows an overview of the most important files:
 ## Content
 
 1. Tool chain setup
-    1. Gcc, Cmake, Make and uWebSocketIO
+    1. Considerations for the best simulation and test environment
+    1. Ubuntu, ROS and necessary packages
     1. Udacity Simulator
-1. Data objects and structures
-    1. Map as well as simulator input and output
-    1. Driver, Vehicle, Path, Trajectory and State classes
-1. Path planning implementation
-    1. Program flow
-    1. Finite state model
-    1. Jerk minimizing trajectories
-    1. Cost functions
-    1. Debugging environment
+1. ROS nodes and topics
+    1. Communication overview
+    1. ROS node waypoint_updater.py
+    1. ROS node twist_controller.py
+    1. ROS node tl_detector.py
+    1. ROS node tl_classifier.py
+1. Traffic light detection
+    1. Classification model
+    1. Training
+    1. Test
 1. Execution
     1. Commands to start the simulation
     1. Simulation results
+    1. Commands to test the code in the real environment
+    1. Test results
 1. Discussion
 1. Known issues and possible improvements
 
@@ -69,12 +72,86 @@ The following table shows an overview of the most important files:
 
 ## 1. Tool chain setup
 
-### 1. Gcc, Cmake, Make and uWebSocketIO
+### 1. Considerations for the best simulation and test environment
+
+The following hardware and software was available during the development.
+
+| Description |
+|-------------|
+| Intel i7-8700K Coffee Lake (6-Core, 12-Thread, 3.7 GHz, 12MB Cache, 95W, CPU Benchmark 16822) |
+| Asus ROG Strix Z370G |
+| 64GB Corsair DDR4 3000 CL15 |
+| Gigabyte Quiet GTX 1060 6GB - 1280 CUDA Cores |
+| 2x Samsung 960 EVO 1TB M.2 NVMe PCIe 3 x 4 SSD (3200/1900 MBps R/W) |
+| 20TB Synology NAS with 2x 1 GB/s Ethernet |
+| Windows 10 and Ubuntu 16.04 dual boot |
+| VMware Workstation 15 Pro (with own Ubuntu virtual machine) |
+| VirtualBox 6.0 (with Udacity provided Lubuntu virtual machine) |
+| Udacity Workspace |
+
+This project requires a host for the Udacity simulator and a host for the Udacity Carla ROS environment. The following options have been tested in conjunction with each other.
+
+| Number | Udacity simulator | Findings |
+|--------|-------------------|----------|
+| 1 | Udacity Workspace VNC | Runs slow when camera sends images |
+| 2 | Windows with GPU | Runs slow when camera sends images to virtualized ROS environment |
+| 3 | Windows / VMware | Runs very slow when camera sends images |
+| 4 | Windows / VirtualBox | Runs extremely slow when camera sends images |
+| 5 | Ubuntu w/o GPU | Runs slow when camera sends images |
+| 6 | Ubuntu with GPU | Runs perfect |
+
+| Udacity Carla ROS environment | Combinations | Findings |
+|-------------------------------|--------------|----------|
+| Udacity Workspace Terminal | 1 | Some effort to install all packages correctly. Runs too slow due to Udacity simulator in Udacity Workspace VNC. |
+| Windows / VMware | 2, 3 | Very difficult to install all packages correctly. Runs too slow due to slow simulator options. |
+| Windows / VMware / Docker | 2, 3 | Some effort to install all packages correctly. Runs too slow due to slow simulator options. |
+| Windows / VirtualBox | 2, 4 | Difficult to install all packages correctly. Runs too slow due to slow simulator options. |
+| Windows / VirtualBox / Docker | 2, 4 | Some effort to install all packages correctly. Runs too slow due to slow simulator options. |
+| Ubuntu with CPU | 5, 6 | Very difficult to install all packages correctly. Runs too slow with option 5 and runs perfect with option 6. |
+| Ubuntu with CPU / Docker | 5, 6 | Was not tested as it wasn't needed. |
+| Ubuntu with CUDA | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060 6GB |
+| Ubuntu with CUDA / Docker | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060 6GB |
+
+The above evaluations led to the only viable solution of using dual boot Ubuntu with GPU for the Udacity simulator and Ubuntu with CPU for the Udacity Carla ROS environment.
+
+### Native Installation
+
+* Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
+* If using a Virtual Machine to install Ubuntu, use the following configuration as minimum:
+  * 2 CPU
+  * 2 GB system memory
+  * 25 GB of free hard drive space
+
+  The Udacity provided virtual machine has ROS and Dataspeed DBW already installed, so you can skip the next two steps if you are using this.
+
+* Follow these instructions to install ROS
+  * [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu) if you have Ubuntu 16.04.
+  * [ROS Indigo](http://wiki.ROS.org/indigo/Installation/Ubuntu) if you have Ubuntu 14.04.
+* [Dataspeed DBW](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS)
+  * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
+* Download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
+
+### Docker Installation
+[Install Docker](https://docs.docker.com/engine/installation/)
+
+Build the docker container
+```bash
+docker build . -t capstone
+```
+
+Run the docker file
+```bash
+docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ROS/ --rm -it capstone
+```
+
+
+
+This project requires Ubuntu 
 
 This project requires the following programs:
 
 * gcc/g++ >= 5.4
-  - Linux: gcc / g++ is installed by default on most Linux distros
+  - Linux: gcc / g++ is installed by default on most Linux distROS
   - Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   - Windows: recommend using [MinGW](http://www.mingw.org/)
   
@@ -82,7 +159,7 @@ This project requires the following programs:
   - All OSes: [click here for installation instructions](https://cmake.org/install/)
   
 * make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  - Linux: make is installed by default on most Linux distros
+  - Linux: make is installed by default on most Linux distROS
   - Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
   - Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
   
@@ -796,10 +873,10 @@ Please use **one** of the two installation options, either native **or** docker 
   The Udacity provided virtual machine has ROS and Dataspeed DBW already installed, so you can skip the next two steps if you are using this.
 
 * Follow these instructions to install ROS
-  * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu) if you have Ubuntu 16.04.
-  * [ROS Indigo](http://wiki.ros.org/indigo/Installation/Ubuntu) if you have Ubuntu 14.04.
-* [Dataspeed DBW](https://bitbucket.org/DataspeedInc/dbw_mkz_ros)
-  * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ros/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
+  * [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu) if you have Ubuntu 16.04.
+  * [ROS Indigo](http://wiki.ROS.org/indigo/Installation/Ubuntu) if you have Ubuntu 14.04.
+* [Dataspeed DBW](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS)
+  * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
 * Download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
 
 ### Docker Installation
@@ -812,7 +889,7 @@ docker build . -t capstone
 
 Run the docker file
 ```bash
-docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ros/ --rm -it capstone
+docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ROS/ --rm -it capstone
 ```
 
 ### Port Forwarding
@@ -832,10 +909,10 @@ pip install -r requirements.txt
 ```
 3. Make and run styx
 ```bash
-cd ros
+cd ROS
 catkin_make
 source devel/setup.sh
-roslaunch launch/styx.launch
+ROSlaunch launch/styx.launch
 ```
 4. Run the simulator
 
@@ -847,11 +924,11 @@ unzip traffic_light_bag_file.zip
 ```
 3. Play the bag file
 ```bash
-rosbag play -l traffic_light_bag_file/traffic_light_training.bag
+ROSbag play -l traffic_light_bag_file/traffic_light_training.bag
 ```
 4. Launch your project in site mode
 ```bash
-cd CarND-Capstone/ros
-roslaunch launch/site.launch
+cd CarND-Capstone/ROS
+ROSlaunch launch/site.launch
 ```
 5. Confirm that traffic light detection works on real life images
