@@ -199,7 +199,7 @@ class TLDetector(object):
 
         if closest_light:
             state = self.get_light_state(closest_light)
-            if bDebug:
+            if bDEBUG:
                 rospy.logwarn("----------------------------------------------------------------------")
                 rospy.logwarn("Correct light state    : {0}".format(closest_light.state))
                 rospy.logwarn("Detected light state   : {0}".format(state))
