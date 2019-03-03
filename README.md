@@ -64,9 +64,7 @@ The following table shows an overview of the most important files:
 
 [//]: # (Image References)
 
-[image1]: ./docu_images/190120_StAn_Path_Planning_Program_Flow.jpg
-[image2]: ./docu_images/190120_StAn_Finite_State_Model.jpg
-[image3]: ./docu_images/190120_StAn_Frenet_Problem.jpg
+[image1]: ./docu_images/190303_StAn_rosgraph.png
 
 ---
 
@@ -145,11 +143,25 @@ git pull https://github.com/CyberAMS/CarND-Capstone
 pip install -r requirements.txt
 ```
 
+### 3. Udacity Simulator
+
 Finally, you need to download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
 
-## 2. Data objects and structures
+## 2. ROS nodes and topics
 
-### 1. Map as well as simulator input and output
+### 1. Communication overview
+
+The Udacity Carla ROS environment has the following topics
+
+![alt text][image1]
+
+### 2. ROS node waypoint_updater.py
+
+### 3. ROS node twist_controller.py
+
+### 4. ROS node tl_detector.py
+
+### 5. ROS node tl_classifier.py
 
 The map information is loaded from the file `highway_map.csv`. It is a list of waypoints with the following structure:
 
