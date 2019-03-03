@@ -89,9 +89,9 @@ The following hardware and software was available during the development.
 | VirtualBox 6.0 (with Udacity provided Lubuntu virtual machine) |
 | Udacity Workspace |
 
-This project requires a host for the Udacity simulator and a host for the Udacity Carla ROS environment. The following options have been tested in conjunction with each other.
+This project requires a host for the Udacity Simulator and a host for the Udacity Carla ROS environment. The following options have been tested in conjunction with each other.
 
-| Number | Udacity simulator | Findings |
+| Number | Udacity Simulator | Findings |
 |--------|-------------------|----------|
 | 1 | Udacity Workspace VNC | Runs slow when camera sends images |
 | 2 | Windows with GPU | Runs slow when camera sends images to virtualized ROS environment |
@@ -102,74 +102,50 @@ This project requires a host for the Udacity simulator and a host for the Udacit
 
 | Udacity Carla ROS environment | Combinations | Findings |
 |-------------------------------|--------------|----------|
-| Udacity Workspace Terminal | 1 | Some effort to install all packages correctly. Runs too slow due to Udacity simulator in Udacity Workspace VNC. |
+| Udacity Workspace Terminal | 1 | Some effort to install all packages correctly. Runs too slow due to Udacity Simulator in Udacity Workspace VNC. |
 | Windows / VMware | 2, 3 | Very difficult to install all packages correctly. Runs too slow due to slow simulator options. |
 | Windows / VMware / Docker | 2, 3 | Some effort to install all packages correctly. Runs too slow due to slow simulator options. |
 | Windows / VirtualBox | 2, 4 | Difficult to install all packages correctly. Runs too slow due to slow simulator options. |
 | Windows / VirtualBox / Docker | 2, 4 | Some effort to install all packages correctly. Runs too slow due to slow simulator options. |
 | Ubuntu with CPU | 5, 6 | Very difficult to install all packages correctly. Runs too slow with option 5 and runs perfect with option 6. |
 | Ubuntu with CPU / Docker | 5, 6 | Was not tested as it wasn't needed. |
-| Ubuntu with CUDA | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060 6GB |
-| Ubuntu with CUDA / Docker | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060 6GB |
+| Ubuntu with CUDA | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060. |
+| Ubuntu with CUDA / Docker | 5, 6 | Could not test due to incompatibility of Ubuntu 16.04 with CUDA 8.0 and NVIDIA GTX 1060. |
 
-The above evaluations led to the only viable solution of using dual boot Ubuntu with GPU for the Udacity simulator and Ubuntu with CPU for the Udacity Carla ROS environment.
+The above evaluations led to the only viable solution of running everything native on a dual boot Ubuntu installation - using Ubuntu with GPU for the Udacity Simulator and Ubuntu with CPU for the Udacity Carla ROS environment. This setup is also very close to the actual setup in the Udacity Carla vehicle.
 
-### Native Installation
+### 2. Ubuntu, ROS and necessary packages
 
-* Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
-* If using a Virtual Machine to install Ubuntu, use the following configuration as minimum:
-  * 2 CPU
-  * 2 GB system memory
-  * 25 GB of free hard drive space
+To follow this project exactly you first need to install [Ubuntu 16.04 Xenial Xerus](https://www.ubuntu.com/download/desktop). Next you have to install [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu).
 
-  The Udacity provided virtual machine has ROS and Dataspeed DBW already installed, so you can skip the next two steps if you are using this.
-
-* Follow these instructions to install ROS
-  * [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu) if you have Ubuntu 16.04.
-  * [ROS Indigo](http://wiki.ROS.org/indigo/Installation/Ubuntu) if you have Ubuntu 14.04.
-* [Dataspeed DBW](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS)
-  * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
-* Download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
-
-### Docker Installation
-[Install Docker](https://docs.docker.com/engine/installation/)
-
-Build the docker container
-```bash
-docker build . -t capstone
+```console
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt-get update
+sudo apt-get install ros-kinetic-desktop-full
+sudo rosdep init
+rosdep update
+echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
 ```
 
-Run the docker file
-```bash
-docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ROS/ --rm -it capstone
+Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default).
+
+```console
+sudo apt-get update
+sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
+<make sure you are in the ros subdirectory>
+rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
 ```
 
+After downloading this repository you need to make sure that you have all the necessary packages installed.
 
+```console
+git pull https://github.com/CyberAMS/CarND-Capstone
+pip install -r requirements.txt
+```
 
-This project requires Ubuntu 
-
-This project requires the following programs:
-
-* gcc/g++ >= 5.4
-  - Linux: gcc / g++ is installed by default on most Linux distROS
-  - Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  - Windows: recommend using [MinGW](http://www.mingw.org/)
-  
-* cmake >= 3.5
-  - All OSes: [click here for installation instructions](https://cmake.org/install/)
-  
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  - Linux: make is installed by default on most Linux distROS
-  - Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  - Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-  
-* [uWebSocketIO](https://github.com/uWebSockets/uWebSockets)
-  - Works with Linux and Mac systems
-  - Windows: Use Docker, VMware or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) (although I wasn't able to get it working with the latest Ubuntu app in Windows 10)
-
-### 2. Udacity Simulator
-
-The path planning program connects to the [Udacity Simulator](https://github.com/udacity/self-driving-car-sim/releases) version [Term 3 Simulator v1.2](https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2) via [uWebSocketIO](https://github.com/uWebSockets/uWebSockets). The simulator is available for Linux, Mac and Windows.
+Finally, you need to download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
 
 ## 2. Data objects and structures
 
