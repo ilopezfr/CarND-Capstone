@@ -168,13 +168,13 @@ class TLDetector(object):
     def state_to_string(self, str, state):
         """Returns the color light associated with the state"""
         if (state == 2 ):
-            rospy.logdebug(str + "GREEN")
+            rospy.logdebug(str + ": GREEN")
         elif (state == 1 ):
-            rospy.logwarn(str + "YELLOW")
+            rospy.logwarn(str + " : YELLOW")
         elif (state == 0 ):
-            rospy.logerr(str + "RED")
+            rospy.logerr(str + ": RED")
         else:
-            rospy.loginfo(str + "UNKNOWN")
+            rospy.loginfo(str + " : UNKNOWN")
     
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -213,8 +213,8 @@ class TLDetector(object):
                 rospy.logwarn("----------------------------------------------------------------------")
             classified_state = self.get_light_state(closest_light)
             if bDEBUG:
-                correct_state_str = self.state_to_string("Correct light state    : ", closest_light.state)
-                detected_state_str = self.state_to_string("Detected light state   : ", classified_state)
+                correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
+                detected_state_str = self.state_to_string("Detected light state   ", classified_state)
                 rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
             return line_wp_idx, classified_state
         return -1, TrafficLight.UNKNOWN
