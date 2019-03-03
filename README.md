@@ -9,31 +9,33 @@ In this project we worked together as a team.
 | Matt Spinola          | matt.spinola@gmail.com     |                                                                                                    |
 | Ignacio Lopez Francos | iglopezfrancos@gmail.com   |                                                                                                    |
 
-The goal of this project is to program the [Udacity Carla vehicle](docu_images\190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulated and a real environment.
+The goal of this project is to program the [Udacity Carla vehicle](docu_images/190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulator environment and a real environment.
 
 The Udacity Carla vehicle provides a [ROS](http://www.ros.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ros](https://bitbucket.org/DataspeedInc/dbw_mkz_ros) from [Dataspeed Inc](https://www.dataspeedinc.com/).
 
-The connection of the different ros nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
+The connection of the different ros nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification uses [Convolutional Neutral Networks (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) and follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
 
 The following table shows an overview of the most important files:
 
-| File                          | Description                                                                                          |
-|-------------------------------|------------------------------------------------------------------------------------------------------|
-| README.md                     | This file                                                                                            |
-| build.sh                      | Script to build the path planning executable                                                         |
-| run.sh                        | Script to run the path planning executable                                                           |
-| data/highway_map.csv          | Provided map data inlcuding data for Frenet conversion                                               |
-| src/main.cpp                  | Source code of the main function of the path planning program                                        |
-| src/json.hpp                  | Source code for reading and writing [JAVAScript Object Notation](https://en.wikipedia.org/wiki/JSON) |
-| src/Map.{h, cpp}              | Source code of the map object                                                                        |
-| src/Driver.{h, cpp}           | Source code of the driver object                                                                     |
-| src/Vehicle.{h, cpp}          | Source code of the vehicle object                                                                    |
-| src/Path.{h, cpp}             | Source code of the path object                                                                       |
-| src/Trajectory.{h, cpp}       | Source code of the trajectory object                                                                 |
-| src/State.{h, cpp}            | Source code of the state object                                                                      |
-| src/spline.{h, cpp}           | Source code of the [spline object](https://kluge.in-chemnitz.de/opensource/spline/)                  |
-| src/helper_functions.{h, cpp} | Source code of helper functions for the path planning program                                        |
-| out.txt                       | Contains an example debugging output for a full run                                                  |
+| File | Description |
+|------|-------------|
+| README.md | This file |
+| data/ | Folder containing waypoint information (maps) and camera calibration data |
+| ros/launch/styx.launch | Launch script for simulator environment |
+| ros/launch/site.launch | Launch script for real environment |
+| src/styx/ | Folder containing scripts to connect ros to the simulator by providing input/output ros topics |
+| src/tl_detector/tl_detector.py | Traffic light detection script (uses src/tl_detector/light_classification/tl_classifier.py) |
+| src/tl_detector/light_classification/tl_classifier.py | Traffic light classification script (leverages TensorFlow CNN model) |
+| src/tl_detector/light_classification/model/frozen_inference_graph.pb | TensorFlow CNN model to classify traffic lights in images |
+| src/twist_controller/dbw_node.py | Drive-by-wire node that handles all related ros topics |
+| src/twist_controller/dbw_test.py | Script that records drive-by-wire data |
+| src/twist_controller/dbw_test.py | Script that records drive-by-wire data |
+| src/twist_controller/twist_controller.py | Script that determines throttle and braking |
+| src/twist_controller/yaw_controller.py | Script that determines steering |
+| src/waypoint_follower/ | Folder containing scripts to determine drive-by-wire signals to follow the desired waypoints |
+| src/waypoint_loader/ | Folder containing scripts to load the necessary waypoints (map) |
+| src/waypoint_updater/waypoint_updater.py | Waypoint node that listens to the traffic light ros topic and determins the desired speed at each waypoint ahead |
+| Traffic_Light_Detection/ | Folder containing everything related to training the TensorFlow CNN model for traffic light classification |
 
 ---
 
