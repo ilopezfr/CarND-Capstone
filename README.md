@@ -9,9 +9,9 @@ In this project we worked together as a team.
 | Matt Spinola          | matt.spinola@gmail.com     |                                                                                                    |
 | Ignacio Lopez Francos | iglopezfrancos@gmail.com   |                                                                                                    |
 
-The goal of this project is to program the Udacity Carla vehicle so it can detect and respect traffic lights in real time when driving in a simulated and a real environment.
+The goal of this project is to program the [Udacity Carla vehicle](docu_images\190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulated and a real environment.
 
-The Udacity Carla vehicle provides a [ROS](http://www.ros.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ros](https://bitbucket.org/DataspeedInc/dbw_mkz_ros) from [Dataspeed Inc.](https://www.dataspeedinc.com/).
+The Udacity Carla vehicle provides a [ROS](http://www.ros.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ros](https://bitbucket.org/DataspeedInc/dbw_mkz_ros) from [Dataspeed Inc](https://www.dataspeedinc.com/).
 
 The connection of the different ros nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
 
