@@ -306,7 +306,7 @@ Start the Udacity Simulator after the Udacity Carla ROS environment of this proj
 
 Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information.
 
-<img src="docu_images/190303_StAn_Udacity_Simulator_Run_01.gif" width="100%">
+<img src="docu_images/190303_StAn_Udacity_Simulator_Run_01_small.gif" width="100%">
 
 ### 3. Commands to test the code in the real environment
 
