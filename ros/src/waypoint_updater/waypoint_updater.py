@@ -97,7 +97,7 @@ class WaypointUpdater(object):
             lane.waypoints = base_waypoints
         else:
             lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
-
+        
         return lane
 
     def decelerate_waypoints(self, waypoints, closest_idx):
@@ -111,11 +111,14 @@ class WaypointUpdater(object):
             if vel < 1.:
                 vel = 0.
             
+            '''
             if (dist <= TRAFFIC_LIGHT_DECELERATION_DISTANCE): # must also make sure that this only happens before the traffic light - maybe even stop doing this when you get really close
                 # close to traffic light based on map info
                 p.twist.twist.linear.x = min(vel, (wp.twist.twist.linear.x * TRAFFIC_LIGHT_DECELERATION_FACTOR), MAX_TRAFFIC_LIGHT_SPEED)
             else:
                 p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
+            '''
+            p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
         
         return temp
@@ -135,7 +138,7 @@ class WaypointUpdater(object):
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
-        self.stopline_wp_idx = msg.data
+        self.stopline_wp_idx = max(msg.data, -1)
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
