@@ -64,7 +64,7 @@ The following table shows an overview of the most important files:
 
 [//]: # (Image References)
 
-[image1]: ./docu_images/190303_StAn_ROSgraph.png
+[image1]: ./docu_images/190303_StAn_rosgraph.png
 
 ---
 
