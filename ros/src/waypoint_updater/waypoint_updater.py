@@ -91,14 +91,7 @@ class WaypointUpdater(object):
         closest_idx = self.get_closest_waypoint_id()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
-        
-        outside_traffic_light_range = (self.stopline_wp_idx < -1) # "-(self.stopline_wp_idx + 1)" is index of upcoming stop line when traffic light is not red or yellow - compare this position to vehicle position and check whether it is within TRAFFIC_LIGHT_DECELERATION_DISTANCE
-        rospy.logwarn("----------------------------------------------------------------------")
-        state = self.get_light_state(closest_light)
-        rospy.logwarn("Stop line index : {0}".format(self.stopline_wp_idx))
-        rospy.logwarn("Oustide range   : {0}".format(outside_traffic_light_range))
-        rospy.logwarn("Farthest index  : {0}".format(farthest_idx))
-        if ((self.stopline_wp_idx == -1) or outside_traffic_light_range or (self.stopline_wp_idx >= farthest_idx)):
+        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = base_waypoints
         else:
             lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
@@ -115,14 +108,7 @@ class WaypointUpdater(object):
             vel = math.sqrt(2 * MAX_DECEL * dist)
             if vel < 1.:
                 vel = 0.
-            
-            '''
-            if (dist <= TRAFFIC_LIGHT_DECELERATION_DISTANCE): # must also make sure that this only happens before the traffic light - maybe even stop doing this when you get really close
-                # close to traffic light based on map info
-                p.twist.twist.linear.x = min(vel, (wp.twist.twist.linear.x * TRAFFIC_LIGHT_DECELERATION_FACTOR), MAX_TRAFFIC_LIGHT_SPEED)
-            else:
-                p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
-            '''
+
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
         
@@ -143,7 +129,7 @@ class WaypointUpdater(object):
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
-        self.stopline_wp_idx = max(msg.data, -1)
+        self.stopline_wp_idx = msg.data
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
