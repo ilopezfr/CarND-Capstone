@@ -5,7 +5,7 @@ from lowpass import LowPassFilter
 
 GAS_DENSITY = 2.858
 ONE_MPH = 0.44704
-DEBUG_THRESHOLD = 100
+DEBUG_THRESHOLD = 500
 
 class Controller(object):
     def __init__(self, vehicle_mass, fuel_capacity, brake_deadband, decel_limit, accel_limit, wheel_radius, wheel_base, steer_ratio, max_lat_accel, max_steer_angle):
@@ -43,7 +43,7 @@ class Controller(object):
             self.throttle_controller.reset()
             return 0., 0., 0.
         
-        if (self.iteration_count % DEBUG_THRESHOLD):
+        if ((self.iteration_count % DEBUG_THRESHOLD) == 0):
             rospy.logwarn("----------------------------------------------------------------------")
             #rospy.logwarn("Target angular vel: {0}".format(angular_vel))
             rospy.logwarn("Target velocity  : {0}".format(linear_vel))

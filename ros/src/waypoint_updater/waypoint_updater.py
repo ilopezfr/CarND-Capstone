@@ -24,7 +24,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number. Must look ahead more than 20 points as we otherwise don't react early enough to traffic lights!
+LOOKAHEAD_WPS = 100 # Number of waypoints we will publish. You can change this number. Must look ahead more than 20 points as we otherwise don't react early enough to traffic lights!
 MAX_DECEL = .5
 TRAFFIC_LIGHT_DECELERATION_DISTANCE = 50
 TRAFFIC_LIGHT_DECELERATION_FACTOR = 0.7
@@ -93,6 +93,11 @@ class WaypointUpdater(object):
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
         
         outside_traffic_light_range = (self.stopline_wp_idx < -1) # "-(self.stopline_wp_idx + 1)" is index of upcoming stop line when traffic light is not red or yellow - compare this position to vehicle position and check whether it is within TRAFFIC_LIGHT_DECELERATION_DISTANCE
+        rospy.logwarn("----------------------------------------------------------------------")
+        state = self.get_light_state(closest_light)
+        rospy.logwarn("Stop line index : {0}".format(self.stopline_wp_idx))
+        rospy.logwarn("Oustide range   : {0}".format(outside_traffic_light_range))
+        rospy.logwarn("Farthest index  : {0}".format(farthest_idx))
         if ((self.stopline_wp_idx == -1) or outside_traffic_light_range or (self.stopline_wp_idx >= farthest_idx)):
             lane.waypoints = base_waypoints
         else:
