@@ -198,9 +198,10 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
-            state = self.get_light_state(closest_light)
             if bDEBUG:
                 rospy.logwarn("----------------------------------------------------------------------")
+            state = self.get_light_state(closest_light)
+            if bDEBUG:
                 rospy.logwarn("Correct light state    : {0}".format(closest_light.state))
                 rospy.logwarn("Detected light state   : {0}".format(state))
                 rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
