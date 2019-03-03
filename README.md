@@ -151,9 +151,11 @@ Finally, you need to download the [Udacity Simulator](https://github.com/udacity
 
 ### 1. Communication overview
 
-The Udacity Carla ROS environment has the following topics
+The Udacity Carla ROS environment for this project uses the following nodes and topics.
 
 ![alt text][image1]
+
+The `/waypoint_loader` reads the map or trajectory information and publishes a list of waypoints that the vehicle can follow safely. The `/tl_detector` node takes this information and the camera image from the vehicle - either simulation or real - and publishes the state of the traffic light ahead (`GREEN`, `YELLOW`, `RED` or `UNKNOWN`). The above diagram shows the case for the simulated environment in which the `/styx_server` node publishes all the relevant vehicle state and sensor information as well as receives the necessary control signals for throttle (not shown), steering (not shown) and braking. The `/waypoint_updater` node determines the desired speed for the waypoints ahead. The `/pure_pursuit` node calculates the drive-by-wire commands for the `dbw_node` node based on the ahead waypoint information.
 
 ### 2. ROS node waypoint_updater.py
 
