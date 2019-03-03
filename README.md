@@ -64,7 +64,7 @@ The following table shows an overview of the most important files:
 
 [//]: # (Image References)
 
-[image1]: ./docu_images/190303_StAn_rosgraph.png
+[image1]: ./docu_images/190303_StAn_ROSgraph.png
 
 ---
 
@@ -117,23 +117,23 @@ The above evaluations led to the only viable solution of running everything nati
 To follow this project exactly you first need to install [Ubuntu 16.04 Xenial Xerus](https://www.ubuntu.com/download/desktop). Next you have to install [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu).
 
 ```console
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo sh -c 'echo "deb http://packages.ROS.org/ROS/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ROS-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
-sudo apt-get install ros-kinetic-desktop-full
-sudo rosdep init
-rosdep update
-echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
+sudo apt-get install ROS-kinetic-desktop-full
+sudo ROSdep init
+ROSdep update
+echo "source /opt/ROS/kinetic/setup.bash" >> ~/.bashrc
+sudo apt install python-ROSinstall python-ROSinstall-generator python-wstool build-essential
 ```
 
 Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default).
 
 ```console
 sudo apt-get update
-sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
-<make sure you are in the ros subdirectory>
-rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
+sudo apt-get install -y ROS-kinetic-dbw-mkz-msgs
+<make sure you are in the ROS subdirectory of this repository>
+ROSdep install --from-paths src --ignore-src --ROSdistro=kinetic -y
 ```
 
 After downloading this repository you need to make sure that you have all the necessary packages installed.
@@ -228,12 +228,12 @@ The following code is used to display debugging information about the actually c
 
 ```python
 if bDEBUG:
-	rospy.logwarn("----------------------------------------------------------------------")
+	ROSpy.logwarn("----------------------------------------------------------------------")
 classified_state = self.get_light_state(closest_light)
 if bDEBUG:
 	correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
 	detected_state_str = self.state_to_string("Detected light state   ", classified_state)
-	rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+	ROSpy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
 return line_wp_idx, classified_state
 ```
 
@@ -250,7 +250,7 @@ def get_classification(self, image):
 		text_string += " > 0.5"
 	else:
 		text_string += " <= 0.5"
-	rospy.logwarn(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
+	ROSpy.logwarn(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
 	if (output_dict['detection_scores'][0] > 0.5):
 		if (output_dict['detection_classes'][0] == 3 ):
 			return TrafficLight.GREEN
@@ -293,36 +293,44 @@ def run_inference_for_single_image(self,image, graph):
 
 ### 1. Commands to start the simulation
 
-```bash
-cd ROS
+```console
+<make sure you are in the ROS subdirectory of this repository>
 catkin_make
 source devel/setup.sh
-ROSlaunch launch/styx.launch
+roslaunch launch/styx.launch
 ```
+
+Start the Udacity Simulator after the Udacity Carla ROS environment of this project is waiting. Then check `Camera` and uncheck `Manual`. The car will follow the center of the lane at the desired speed and stop at the stop line of upcoming traffic lights if the traffic light state is `RED` or `YELLOW`.
 
 ### 2. Simulation results
 
-<img src="docu_images/190127_StAn_Udacity_SDC_PP_start_small.gif" width="48%"> <img src="docu_images/190127_StAn_Udacity_SDC_PP_straight_small.gif" width="48%">
+Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information.
+
+<img src="docu_images/190303_StAn_Udacity_Simulator_Run_01.gif" width="100%">
 
 ### 3. Commands to test the code in the real environment
 
-1. Download [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity self-driving car.
-2. Unzip the file
-```bash
+Download the [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity Carla vehicle. Extract the content and run the ROS bag.
+
+```console
 unzip traffic_light_bag_file.zip
+rosbag play -l traffic_light_bag_file/traffic_light_training.bag
 ```
-3. Play the bag file
-```bash
-ROSbag play -l traffic_light_bag_file/traffic_light_training.bag
+
+Open another terminal and start the Udacity Carla ROS environment of this project with the `site.launch` file.
+
+```console
+<make sure you are in the ROS subdirectory of this repository>
+catkin_make
+source devel/setup.sh
+roslaunch launch/site.launch
 ```
-4. Launch your project in site mode
-```bash
-cd CarND-Capstone/ROS
-ROSlaunch launch/site.launch
-```
-5. Confirm that traffic light detection works on real life images
+
+And then ?!?
 
 ### 4. Test results
+
+No results yet
 
 ## 5. Discussion
 
