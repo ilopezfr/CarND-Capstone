@@ -7,7 +7,7 @@ In this project we worked together as a team.
 | Thomas Henckel (lead) | thomas.henckel51@gmail.com | [https://github.com/ThomasHenckel/CarND-Capstone](https://github.com/ThomasHenckel/CarND-Capstone) |
 | Andre Strobel         | andre.strobel@cyberams.de  | [https://github.com/CyberAMS/CarND-Capstone](https://github.com/CyberAMS/CarND-Capstone)           |
 | Matt Spinola          | matt.spinola@gmail.com     |                                                                                                    |
-| Ignacio Lopez Francos | iglopezfrancos@gmail.com   |                                                                                                    |
+| Ignacio López-Francos | iglopezfrancos@gmail.com   | [https://github.com/ilopezfr/CarND-Capstone](https://github.com/ilopezfr/CarND-Capstone)           |
 
 The goal of this project is to program the [Udacity Carla vehicle](docu_images/190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulator environment and a real environment.
 
