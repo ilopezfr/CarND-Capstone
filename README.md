@@ -283,6 +283,8 @@ def run_inference_for_single_image(self,image, graph):
 
 ## 3. Traffic light detection
 
+The [traffic light detection model](./Traffic_Light_Detection/README.md) is explained in a separate [folder](./Traffic_Light_Detection/).
+
 ### 1. Classification model
 
 ### 2. Training
