@@ -118,8 +118,8 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
 sudo apt-get install ros-kinetic-desktop-full
-sudo ROSdep init
-ROSdep update
+sudo rosdep init
+rosdep update
 echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
 ```
@@ -130,7 +130,7 @@ Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Inst
 sudo apt-get update
 sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
 <make sure you are in the ros subdirectory of this repository>
-ROSdep install --from-paths src --ignore-src --ROSdistro=kinetic -y
+rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
 ```
 
 After downloading this repository you need to make sure that you have all the necessary packages installed.
