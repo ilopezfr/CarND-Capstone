@@ -1,11 +1,10 @@
 bin
 include
 object_detection
-training
-*.record
 
 # Custom
 data/
+models/ssd_mobilenet_v1_coco_2018_01_28
 notebooks/TrafficLightDetection-Inference.ipynb
 notebooks/object_detection
 optimize_graph.py
