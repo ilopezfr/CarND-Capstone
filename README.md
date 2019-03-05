@@ -51,9 +51,6 @@ The following table shows an overview of the most important files:
     1. ROS node tl_detector.py
     1. TLClassifier object
 1. Traffic light detection
-    1. Classification model
-    1. Training
-    1. Test
 1. Execution
     1. Commands to start the simulation
     1. Simulation results
@@ -283,13 +280,7 @@ def run_inference_for_single_image(self,image, graph):
 
 ## 3. Traffic light detection
 
-The [traffic light detection model](./Traffic_Light_Detection/README.md) is explained in a separate [folder](./Traffic_Light_Detection/).
-
-### 1. Classification model
-
-### 2. Training
-
-### 3. Test
+The [description](./Traffic_Light_Detection/README.md) of the traffic light detection model is located in a separate [folder](./Traffic_Light_Detection/).
 
 ## 4. Execution
 
