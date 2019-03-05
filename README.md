@@ -11,7 +11,7 @@ In this project we worked together as a team.
 
 The goal of this project is to program the [Udacity Carla vehicle](docu_images/190303_StAn_Udacity_Carla_01.jpg) so it can detect and respect traffic lights in real time when driving in a simulator environment and a real environment.
 
-The Udacity Carla vehicle provides a [ROS](http://www.ROS.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ROS](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS) from [Dataspeed Inc](https://www.dataspeedinc.com/).
+The Udacity Carla vehicle provides a [ROS](http://www.ROS.org/) interface and uses the [ADAS](https://en.wikipedia.org/wiki/Advanced_driver-assistance_systems) kit [dbw_mkz_ros](https://bitbucket.org/DataspeedInc/dbw_mkz_ros) from [Dataspeed Inc](https://www.dataspeedinc.com/).
 
 The connection of the different ROS nodes follows the descriptions provided in the [Udacity Self-Driving Car Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) (2 term course). The basic logic of the traffic light classification uses [Convolutional Neutral Networks (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) and follows [Mathias Köhnke's solution](https://github.com/mkoehnke/CarND-Capstone). A high level overview of [TensorFlow’s Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) is provided by [Daniel Stang](https://medium.com/@WuStangDan/step-by-step-tensorflow-object-detection-api-tutorial-part-1-selecting-a-model-a02b6aabe39e). Additional traffic light images were gathered from [LISA](https://www.kaggle.com/mbornoe/lisa-traffic-light-dataset) and [Bosch Small Traffic Light Dataset](https://hci.iwr.uni-heidelberg.de/node/6132/).
 
@@ -21,8 +21,8 @@ The following table shows an overview of the most important files:
 |------|-------------|
 | README.md | This file |
 | data/ | Folder containing waypoint information (maps) and camera calibration data |
-| ROS/launch/styx.launch | Launch script for simulator environment |
-| ROS/launch/site.launch | Launch script for real environment |
+| ros/launch/styx.launch | Launch script for simulator environment |
+| ros/launch/site.launch | Launch script for real environment |
 | src/styx/ | Folder containing scripts to connect ROS to the simulator by providing input/output ROS topics |
 | src/tl_detector/tl_detector.py | Traffic light detection script (uses src/tl_detector/light_classification/tl_classifier.py) |
 | src/tl_detector/light_classification/tl_classifier.py | Traffic light classification script (leverages TensorFlow CNN model) |
@@ -114,25 +114,25 @@ The above evaluations led to the only viable solution of running everything nati
 
 ### 2. Ubuntu, ROS and necessary packages
 
-To follow this project exactly you first need to install [Ubuntu 16.04 Xenial Xerus](https://www.ubuntu.com/download/desktop). Next you have to install [ROS Kinetic](http://wiki.ROS.org/kinetic/Installation/Ubuntu).
+To follow this project exactly you first need to install [Ubuntu 16.04 Xenial Xerus](https://www.ubuntu.com/download/desktop). Next you have to install [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu).
 
 ```console
-sudo sh -c 'echo "deb http://packages.ROS.org/ROS/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ROS-latest.list'
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
-sudo apt-get install ROS-kinetic-desktop-full
+sudo apt-get install ros-kinetic-desktop-full
 sudo ROSdep init
 ROSdep update
-echo "source /opt/ROS/kinetic/setup.bash" >> ~/.bashrc
-sudo apt install python-ROSinstall python-ROSinstall-generator python-wstool build-essential
+echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
 ```
 
-Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ROS/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default).
+Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ros/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default).
 
 ```console
 sudo apt-get update
-sudo apt-get install -y ROS-kinetic-dbw-mkz-msgs
-<make sure you are in the ROS subdirectory of this repository>
+sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
+<make sure you are in the ros subdirectory of this repository>
 ROSdep install --from-paths src --ignore-src --ROSdistro=kinetic -y
 ```
 
@@ -294,7 +294,7 @@ def run_inference_for_single_image(self,image, graph):
 ### 1. Commands to start the simulation
 
 ```console
-<make sure you are in the ROS subdirectory of this repository>
+<make sure you are in the ros subdirectory of this repository>
 catkin_make
 source devel/setup.sh
 roslaunch launch/styx.launch
@@ -320,7 +320,7 @@ rosbag play -l traffic_light_bag_file/traffic_light_training.bag
 Open another terminal and start the Udacity Carla ROS environment of this project with the `site.launch` file.
 
 ```console
-<make sure you are in the ROS subdirectory of this repository>
+<make sure you are in the ros subdirectory of this repository>
 catkin_make
 source devel/setup.sh
 roslaunch launch/site.launch
