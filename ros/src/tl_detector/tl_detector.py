@@ -82,7 +82,7 @@ class TLDetector(object):
         self.has_image = True
         self.camera_image = msg
         if ((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0):
-		    # traffic light must be processed
+            # traffic light must be processed
             #rospy.logwarn("Processing traffic light image")
             light_wp, state = self.process_traffic_lights()
         else:
@@ -100,7 +100,7 @@ class TLDetector(object):
         if self.state != state:
             self.state_count = 0
             self.state = state
-		
+
         if self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
             light_wp = light_wp if ((state == TrafficLight.RED) or (state == TrafficLight.YELLOW)) else -1
@@ -172,7 +172,7 @@ class TLDetector(object):
         elif (state == 1 ):
             rospy.logwarn(str + " : YELLOW")
         elif (state == 0 ):
-            rospy.logerr(str + ": RED")
+            rospy.logerr(str + " : RED")
         else:
             rospy.loginfo(str + " : UNKNOWN")
         
@@ -209,10 +209,9 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
-            if bDEBUG:
-                rospy.logwarn("----------------------------------------------------------------------")
             classified_state = self.get_light_state(closest_light)
-            if bDEBUG:
+            if bDEBUG and (classified_state != 4):
+                rospy.logwarn("----------------------------------------------------------------------")
                 correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
                 detected_state_str = self.state_to_string("Detected light state   ", classified_state)
                 rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
