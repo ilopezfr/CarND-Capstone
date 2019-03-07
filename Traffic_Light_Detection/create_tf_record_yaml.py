@@ -12,8 +12,8 @@ FLAGS = flags.FLAGS
 
 LABEL_DICT =  {
     "Green" : 1,
-    "Red" : 2,
-    "Yellow" : 3,
+    "Yellow" : 2,
+    "Red" : 3,
     }
 
 def create_tf_example(example):
@@ -70,7 +70,6 @@ def create_tf_example(example):
         'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
         'image/object/class/label': dataset_util.int64_list_feature(classes),
     }))
-
     return tf_example
 
 
