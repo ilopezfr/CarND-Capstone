@@ -46,9 +46,9 @@ The code to convert the images to TensorFlow Record file format can be found in 
 
 In that notebook, you can find all the steps to do the conversion. Essentially, one has to download the datasets with the images and labels, combine them together and then run the `create_tf_record.py` program: 
 ```console
-$ python CarND-Capstone/Traffic_Light_Detection/create_tf_record.py \
-        --data_dir=dataset/mixed \
-        --labels_dir=dataset/mixed/labels \
+$ python3 create_tf_record.py \
+        --data_dir=../../dataset/mixed \
+        --labels_dir=../../dataset/mixed/labels \
         --labels_map_path=config/labels_map.pbtxt \
         --output_path=data/mixed.record
 ```
@@ -67,32 +67,32 @@ The bosch dataset has annotations in YAML format, and the `create_tf_record_yaml
 $ find dataset/Bosch/train/ -type f -print0 | xargs -0 mv -t dataset/Bosch/train
 
 # Create the train and test tfrecord
-$ python3 CarND-Capstone/Traffic_Light_Detection/create_tf_record_yaml.py \
-        --output_path CarND-Capstone/Traffic_Light_Detection/data/train_bosch.record \
-        --path_to_yaml dataset/Bosch/train.yaml \
-        --path_to_images dataset/Bosch/train 
-$ python3 CarND-Capstone/Traffic_Light_Detection/create_tf_record_yaml.py \
-        --output_path CarND-Capstone/Traffic_Light_Detection/data/test_bosch.record \
-        --path_to_yaml dataset/Bosch/test.yaml \
-        --path_to_images dataset/Bosch/test 
+$ python3 create_tf_record_yaml.py \
+        --output_path data/train_bosch.record \
+        --path_to_yaml ../../dataset/Bosch/train.yaml \
+        --path_to_images ../../dataset/Bosch/train 
+$ python3 create_tf_record_yaml.py \
+        --output_path data/test_bosch.record \
+        --path_to_yaml ../../dataset/Bosch/test.yaml \
+        --path_to_images ../../dataset/Bosch/test 
 ```
 ### LISA dataset
 The bosch dataset has annotations in YAML format, and the `create_tf_record_yaml.py` is used.
 
 ```console
 # repeat for as many dayClip's as you want there are 13
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py \
-        --output_path CarND-Capstone/Traffic_Light_Detection/data/train_lisa1.record \
-        --csv_input dataset/LISA/Annotations/dayTrain/dayClip1/frameAnnotationsBOX.csv \
-        --path_to_images dataset/LISA/dayTrain/dayClip1/frames/ 
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py \
-        --output_path CarND-Capstone/Traffic_Light_Detection/data/test_lisa1.record \
-        --csv_input dataset/LISA/Annotations/dayTrain/daySequence1/frameAnnotationsBOX.csv \
-        --path_to_images dataset/LISA/dayTrain/daySequence1/frames/
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py \
-        --output_path CarND-Capstone/Traffic_Light_Detection/data/test_lisa2.record \
-        --csv_input dataset/LISA/Annotations/dayTrain/daySequence2/frameAnnotationsBOX.csv \
-        --path_to_images dataset/LISA/dayTrain/daySequence2/frames/
+$ python3 create_tf_record_csv.py \
+        --output_path data/train_lisa1.record \
+        --csv_input ../../dataset/LISA/Annotations/dayTrain/dayClip1/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/dayTrain/dayClip1/frames/ 
+$ python3 create_tf_record_csv.py \
+        --output_path data/test_lisa1.record \
+        --csv_input ../../dataset/LISA/Annotations/daySequence1/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/daySequence1/frames/
+$ python3 create_tf_record_csv.py \
+        --output_path data/test_lisa2.record \
+        --csv_input ../../dataset/LISA/Annotations/daySequence2/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/daySequence2/frames/
 ```
 
 ## Training 
@@ -116,19 +116,25 @@ Taking the template config file provided by Tensorflow, we simply made the follo
 
 ### Training
 #### Training locally
-Before we can start training using Tensorflow object detection we need to setup our environment following the [Installation instructions]
-It is important to be in the /models/research dir when running 
-`export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim` as we have not copied slim to CarND-Capstone
+Before we can start training using Tensorflow object detection we need to setup our environment following the [Installation instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
+It is important to be in the /models/research dir when running
+``` bash
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+```
+as we have not copied slim to CarND-Capstone
 
 The model can now be trained
 ```console
-$ cd CarND-Capstone/Traffic_Light_Detection/training
-$ python3 train.py --logtostderr --train_dir=models/train --pipeline_config_path=ssd_mobilenet_v1_coco.config
+$  python3 model_main.py /
+        --pipeline_config_path=config/ssd_mobilenet_v1.config /
+        --model_dir=models/fine_tuned/ssd_mobilenet /
+        --sample_1_of_n_eval_examples=10 /
+        --alsologtostderr /
 ```
 #### Training Colab
 We trained the model using Colab in a GPU for 20,000 global steps on the Mixed Dataset. The whole training took approximately 9 hours. The list of parameters used: 
 - batch_size = 24
-- Steps = 20000
+- Steps = 100000
 - Learning_rate = 0.004
 - Anchors min scale = 0.1
 - Anchors max scale = 0.5

@@ -25,8 +25,8 @@ FLAGS = flags.FLAGS
 
 LABEL_DICT =  {
     "Green" : 1,
-    "Red" : 2,
-    "Yellow" : 3,
+    "Yellow" : 2,
+    "Red" : 3,
     }
 
 def split(df, group):

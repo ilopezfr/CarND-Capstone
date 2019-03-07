@@ -3,11 +3,12 @@ include
 object_detection
 
 # Custom
+models/
 data/
-models/ssd_mobilenet_v1_coco_2018_01_28
 notebooks/TrafficLightDetection-Inference.ipynb
 notebooks/object_detection
 optimize_graph.py
 
 # exception to the rule
-!object_detection/utils/
+!models/exported
+!models/converted_to_TFv14
