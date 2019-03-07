@@ -117,8 +117,11 @@ Taking the template config file provided by Tensorflow, we simply made the follo
 ### Training
 #### Training locally
 Before we can start training using Tensorflow object detection we need to setup our environment following the [Installation instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
-It is important to be in the /models/research dir when running 
-export PYTHONPATH=$PYTHONPATH:\`pwd\`:\`pwd\`/slim as we have not copied slim to CarND-Capstone
+It is important to be in the /models/research dir when running
+``` bash
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+```
+as we have not copied slim to CarND-Capstone
 
 The model can now be trained
 ```console
