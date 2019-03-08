@@ -6,6 +6,7 @@ import math
 import cv2
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+#from PIL import Image as PILImage # debugging if you want to save the images
 
 class TLClassifier(object):
     def __init__(self):
@@ -22,6 +23,7 @@ class TLClassifier(object):
                 tf.import_graph_def(od_graph_def, name='')
         self.bounding_box_img_pubs = rospy.Publisher('/debug/bounding_box_img', Image, queue_size=1)
         self.bridge = CvBridge()
+        #self.imagenumber = 0
 
     def state_to_string(self, state):
         """ Returns the color light associated with the state """
@@ -56,8 +58,13 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+        
         # TODO implement light color prediction
         image_np = self.load_image_into_numpy_array(image)
+        # im = PILImage.fromarray(image_np) # debugging if you want to save the images
+        # im.save(str(self.imagenumber)+"_result.jpg", "JPEG", quality=80, optimize=True, progressive=True) # debugging if you want to save the images
+        # self.imagenumber = self.imagenumber +1
+
         # Actual detection.
         output_dict = self.run_inference_for_single_image(image_np, self.detection_graph)
         text_string = "Classified light (idx {0}) state : {1} with probability {2}"
@@ -74,7 +81,7 @@ class TLClassifier(object):
                 box_size = math.sqrt(x*x+y*y)
                 print("i: " + str(i) + " score: " + str(output_dict['detection_scores'][i]) + " " + self.state_to_string(output_dict['detection_classes'][i]) + " box_size: " + str(box_size) + " " + str(output_dict['detection_boxes'][i]))
                 # print(output_dict['detection_boxes'][i])
-                if (box_size > max_box_size):
+                if ((box_size > max_box_size) & (output_dict['detection_boxes'][i][1] < 0.5) ): # if the top of the trafic light is in the lower half of the picture it is properly not at traffic light
                     max_box_idx = i
                     max_box_size = box_size
 
