@@ -88,7 +88,7 @@ class TLClassifier(object):
 
         ret_val = TrafficLight.UNKNOWN
         if ((max_box_idx >= 0) and (output_dict['detection_scores'][max_box_idx] > 0.5)):
-            (text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
+            # rospy.logwarn(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
             print(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
             image = self.add_bounding_box_to_image(image, output_dict['detection_boxes'][max_box_idx])
 
