@@ -20,7 +20,7 @@ The following table shows an overview of the most important files:
 | File | Description |
 |------|-------------|
 | README.md | This file |
-| data/ | Folder containing waypoint information (maps) and camera calibration data |
+| data/ | Folder containing waypoint information (maps), camera calibration data as well as training and test images |
 | ros/launch/styx.launch | Launch script for simulator environment |
 | ros/launch/site.launch | Launch script for real environment |
 | src/styx/ | Folder containing scripts to connect ROS to the simulator by providing input/output ROS topics |
@@ -224,38 +224,52 @@ def image_cb(self, msg):
 The following code is used to display debugging information about the actually correct and the detected traffic light states. It works very well if `python-termcolor` has been installed as mentioned in the above section.
 
 ```python
-if bDEBUG:
-	ROSpy.logwarn("----------------------------------------------------------------------")
 classified_state = self.get_light_state(closest_light)
-if bDEBUG:
+if (bDEBUG and (classified_state != 4)):
+	rospy.logwarn("----------------------------------------------------------------------")
 	correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
 	detected_state_str = self.state_to_string("Detected light state   ", classified_state)
-	ROSpy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+	rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
 return line_wp_idx, classified_state
 ```
 
 ### 5. TLClassifier object
 
-The `TLClassifier' class in `tl_classifier.py` offers the method `get_classification` that calls TensorFlow to run the inference for a single image with the method `run_inference_for_single_image`.
+The `TLClassifier' class in `tl_classifier.py` offers the method `get_classification` that calls TensorFlow to run the inference for a single image with the method `run_inference_for_single_image`. It checks whether the bounding boxes of the detected traffic lights are in the expected area of the image. And then it only takes the image that is in the expected area and has the largest bounding box. At the end it publishes the image with the bounding box.
 
 ```python
 def get_classification(self, image):
 	image_np = self.load_image_into_numpy_array(image)
 	output_dict = self.run_inference_for_single_image(image_np, self.detection_graph)
-	text_string = "Classified light state : {0} with probability {1}"
+	text_string = "Classified light (idx {0}) state : {1} with probability {2}"
 	if (output_dict['detection_scores'][0] > 0.5):
 		text_string += " > 0.5"
 	else:
 		text_string += " <= 0.5"
-	ROSpy.logwarn(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
-	if (output_dict['detection_scores'][0] > 0.5):
-		if (output_dict['detection_classes'][0] == 3 ):
-			return TrafficLight.GREEN
-		if (output_dict['detection_classes'][0] == 2 ):
-			return TrafficLight.YELLOW
-		if (output_dict['detection_classes'][0] == 1 ):
-			return TrafficLight.RED
-	return TrafficLight.UNKNOWN
+	max_box_idx = -1
+	max_box_size = -1.0
+	for i in range(output_dict['num_detections']/2):
+		if (output_dict['detection_scores'][i] > 0.5):
+			x = output_dict['detection_boxes'][i][2] - output_dict['detection_boxes'][i][0]
+			y = output_dict['detection_boxes'][i][3] - output_dict['detection_boxes'][i][1]
+			box_size = math.sqrt((x * x) + (y * y))
+			print("i: " + str(i) + " score: " + str(output_dict['detection_scores'][i]) + " " + self.state_to_string(output_dict['detection_classes'][i]) + " box_size: " + str(box_size) + " " + str(output_dict['detection_boxes'][i]))
+			if ((box_size > max_box_size) & (output_dict['detection_boxes'][i][1] < 0.5) ): # if the top of the traffic light is in the lower half of the picture it is properly not at traffic light
+				max_box_idx = i
+				max_box_size = box_size
+	ret_val = TrafficLight.UNKNOWN
+	if ((max_box_idx >= 0) and (output_dict['detection_scores'][max_box_idx] > 0.5)):
+		rospy.logwarn(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
+		image = self.add_bounding_box_to_image(image, output_dict['detection_boxes'][max_box_idx])
+		if (output_dict['detection_classes'][max_box_idx] == 1 ):
+			ret_val = TrafficLight.GREEN
+		elif (output_dict['detection_classes'][max_box_idx] == 2 ):
+			ret_val = TrafficLight.YELLOW
+		elif (output_dict['detection_classes'][max_box_idx] == 3 ):
+			ret_val = TrafficLight.RED
+	img_msg = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
+	self.bounding_box_img_pubs.publish(img_msg)
+	return ret_val
 ```
 
 ```python
@@ -287,8 +301,6 @@ In the first iteration of this project, we combined three datasets which combine
 The [description](./Traffic_Light_Detection/README.md) of the traffic light detection model is located in a separate [folder](./Traffic_Light_Detection/).
 
 
-
-
 ## 4. Execution
 
 ### 1. Commands to start the simulation
@@ -304,20 +316,15 @@ Start the Udacity Simulator after the Udacity Carla ROS environment of this proj
 
 ### 2. Simulation results
 
-Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information.
+Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information and camera image.
 
-<img src="docu_images/190303_StAn_Udacity_Simulator_Run_01_small.gif" width="100%">
+<img src="docu_images/190309_StAn_CAP_simulator_smallest.gif" width="100%">
 
 ### 3. Commands to test the code in the real environment
 
-Download the [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity Carla vehicle. Extract the content and run the ROS bag.
+Download the [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) and [test bags](https://drive.google.com/file/d/0B2_h37bMVw3iYkdJTlRSUlJIamM/view) that were recorded on the Udacity Carla vehicle. Extract the contents.
 
-```console
-unzip traffic_light_bag_file.zip
-rosbag play -l traffic_light_bag_file/traffic_light_training.bag
-```
-
-Open another terminal and start the Udacity Carla ROS environment of this project with the `site.launch` file.
+Start the Udacity Carla ROS environment of this project with the `site.launch` file.
 
 ```console
 <make sure you are in the ros subdirectory of this repository>
@@ -326,11 +333,24 @@ source devel/setup.sh
 roslaunch launch/site.launch
 ```
 
-And then ?!?
+Open another terminal and open an image viewer to see the camera image.
+
+```console
+rosrun rqt_image_view rqt_image_view topic:=/debug/bounding_box_img
+```
+
+Open another terminal and run the ROS bag.
+
+```console
+unzip <your zipped bag files>.zip
+rosbag play -l <your bag file>.bag
+```
 
 ### 4. Test results
 
-No results yet
+<img src="docu_images/190309_StAn_CAP_just_smallest.gif" width="100%">
+<img src="docu_images/190309_StAn_CAP_loop_smallest.gif" width="100%">
+<img src="docu_images/190309_StAn_CAP_train_smallest.gif" width="100%">
 
 ## 5. Discussion
 

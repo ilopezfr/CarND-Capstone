@@ -13,6 +13,7 @@ class TLClassifier(object):
         # TODO load classifier
         if tf.__version__ < '1.4.0':
             rospy.logwarn('Please upgrade your tensorflow installation to v1.4.* or later! you have version '+tf.__version__ )
+            rospy.logwarn('Ignore this message if you run an older tensorflow version intentionally.')
         PATH_TO_CKPT = 'light_classification/model/frozen_inference_graph.pb'
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
@@ -37,8 +38,8 @@ class TLClassifier(object):
             return "UNKNOWN"
 
     def add_bounding_box_to_image(self, image, box):
-        img_height = image.shape[1] # height 600
-        img_width = image.shape[0]  # width 800
+        img_height = image.shape[0] # height 600
+        img_width = image.shape[1]  # width 800
         y_min, x_min, y_max, x_max = box
         box_width = (x_max - x_min) * img_width
         box_height = (y_max - y_min) * img_height
@@ -76,20 +77,19 @@ class TLClassifier(object):
         max_box_size = -1.0
         for i in range(output_dict['num_detections']/2):
             if (output_dict['detection_scores'][i] > 0.5):
-                x = output_dict['detection_boxes'][i][2] - output_dict['detection_boxes'][i][0]
-                y = output_dict['detection_boxes'][i][3] - output_dict['detection_boxes'][i][1]
-                box_size = math.sqrt(x*x+y*y)
+                x = output_dict['detection_boxes'][i][3] - output_dict['detection_boxes'][i][1]
+                y = output_dict['detection_boxes'][i][2] - output_dict['detection_boxes'][i][0]
+                box_size = math.sqrt((x * x) + (y * y))
                 print("i: " + str(i) + " score: " + str(output_dict['detection_scores'][i]) + " " + self.state_to_string(output_dict['detection_classes'][i]) + " box_size: " + str(box_size) + " " + str(output_dict['detection_boxes'][i]))
                 # print(output_dict['detection_boxes'][i])
-                if ((box_size > max_box_size) & (output_dict['detection_boxes'][i][1] < 0.5) ): # if the top of the trafic light is in the lower half of the picture it is properly not at traffic light
+                if (box_size > max_box_size):
                     max_box_idx = i
                     max_box_size = box_size
 
         ret_val = TrafficLight.UNKNOWN
         if ((max_box_idx >= 0) and (output_dict['detection_scores'][max_box_idx] > 0.5)):
-            rospy.logwarn(text_string.format(max_box_idx,
-                                             output_dict['detection_classes'][max_box_idx],
-                                             output_dict['detection_scores'][max_box_idx]))
+            (text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
+            print(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
             image = self.add_bounding_box_to_image(image, output_dict['detection_boxes'][max_box_idx])
 
             # New model assignment
@@ -101,7 +101,7 @@ class TLClassifier(object):
                 ret_val = TrafficLight.RED
 
         # publish debug bounding box image
-        img_msg = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
+        img_msg = self.bridge.cv2_to_imgmsg(image, encoding="rgb8")
         self.bounding_box_img_pubs.publish(img_msg)
 
         return ret_val

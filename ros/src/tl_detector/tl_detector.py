@@ -211,10 +211,12 @@ class TLDetector(object):
         if closest_light:
             classified_state = self.get_light_state(closest_light)
             if bDEBUG and (classified_state != 4):
-                rospy.logwarn("----------------------------------------------------------------------")
+                # rospy.logwarn("----------------------------------------------------------------------")
+                print("----------------------------------------------------------------------")
                 correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
                 detected_state_str = self.state_to_string("Detected light state   ", classified_state)
-                rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+                # rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+                print("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
             return line_wp_idx, classified_state
         return -1, TrafficLight.UNKNOWN
 
