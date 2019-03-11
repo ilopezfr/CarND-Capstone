@@ -12,8 +12,8 @@ FLAGS = flags.FLAGS
 
 LABEL_DICT =  {
     "Green" : 1,
-    "Red" : 2,
-    "Yellow" : 3,
+    "Yellow" : 2,
+    "Red" : 3,
     }
 
 def create_tf_example(example):
@@ -48,7 +48,7 @@ def create_tf_example(example):
             ymins.append(float(box['y_min'] / height))
             ymaxs.append(float(box['y_max'] / height))
             # we only care about red,green and yellow
-            lightColor = ""
+            lightColor = box['label']
             if "Green" in box['label']:
                 lightColor = "Green"
             if "Red" in box['label']:
@@ -70,7 +70,6 @@ def create_tf_example(example):
         'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
         'image/object/class/label': dataset_util.int64_list_feature(classes),
     }))
-
     return tf_example
 
 
@@ -81,7 +80,7 @@ def main(_):
     # BOSCH
     examples = yaml.load(open(FLAGS.path_to_yaml, 'rb').read())
 
-    examples = examples[:200]  # for testing
+    #examples = examples[:200]  # for testing
     len_examples = len(examples)
     print("Loaded ", len(examples), "examples")
 

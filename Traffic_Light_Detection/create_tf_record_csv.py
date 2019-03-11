@@ -25,8 +25,8 @@ FLAGS = flags.FLAGS
 
 LABEL_DICT =  {
     "Green" : 1,
-    "Red" : 2,
-    "Yellow" : 3,
+    "Yellow" : 2,
+    "Red" : 3,
     }
 
 def split(df, group):
@@ -36,7 +36,6 @@ def split(df, group):
 
 
 def create_tf_example(group, path):
-    print(os.path.join(path, '{}'.format(group.filename)))
     with tf.gfile.GFile(os.path.join(path, '{}'.format(group.filename.split("/")[-1])), 'rb') as fid:
         encoded_jpg = fid.read()
     encoded_jpg_io = io.BytesIO(encoded_jpg)
@@ -88,11 +87,17 @@ def main(_):
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
     path = os.path.join(FLAGS.path_to_images)
     examples = pd.read_csv(FLAGS.csv_input, sep=';')
-    print(examples)
     grouped = split(examples, 'Filename')
+    
+    len_examples = len(grouped)
+    counter = 0
     for group in grouped:
         tf_example = create_tf_example(group, path)
         writer.write(tf_example.SerializeToString())
+
+        if counter % 10 == 0:
+            print("Percent done", (counter/len_examples)*100)
+        counter += 1
 
     writer.close()
     output_path = os.path.join(os.getcwd(), FLAGS.output_path)

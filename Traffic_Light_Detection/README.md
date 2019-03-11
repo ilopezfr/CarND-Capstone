@@ -27,14 +27,17 @@ To start with clone these 2 repos and download the dataset. if you place the fol
         |   ├── daySequence1
         |   ├── daySequence2
         |   └── dayTrain
-        └── Udacity             # Udacity dataset
-            ├── labels            
-            ├── sim_y_0110.jpg
-            ├── ...jpg
+        └── mixed             # Udacity dataset
+            ├── labels
+            |      ├ img_01.xml     
+            |      └ ...     
+            ├ img_01.jpg
+            ├ img_02.jpg
+            └ ...
 
 Not all dataset need to be used, and it is possible to just run the following commands for the datasets you wish to use.
 
-### Udacity
+### Udacity mixed dataset
 In the first iteration of this project, we ended up combining the three first datasets: carla_training, carla_testing, simulator. The combination of these three datasets adds up to a total of 2,613 images. We called this collection **Mixed** dataset. The results of the model sufficiently met our needs, achieving a good balance between accuracy and fast running time. Because of this, we didn't see a priority investing extra time and computation in retraining the model with the other public datasets, given the time constraints we had in delivering the first version of this project. We will consider retraining the model on these datasets on the second iteration of this project.   
 
 In order to train the model using the TensorFlow Object Detection API, the images supplied needed to be converted into [TensorFlow Record file format](https://www.tensorflow.org/guide/extend/formats). We've supplied the utility file `create_tf_record.py` that converts the annotated images into a TensorFlow Record, optionally splitting the dataset into train and validation.
@@ -43,66 +46,60 @@ The code to convert the images to TensorFlow Record file format can be found in 
 
 In that notebook, you can find all the steps to do the conversion. Essentially, one has to download the datasets with the images and labels, combine them together and then run the `create_tf_record.py` program: 
 ```console
-$ python create_tf_record.py --data_dir=data/simulator \
-                           --labels_dir=data/simulator/labels \
-                           --labels_map_path=config/labels_map.pbtxt \
-                           --output_path=data/simulator/simulator.record
+$ python3 create_tf_record.py \
+        --data_dir=../../dataset/mixed \
+        --labels_dir=../../dataset/mixed/labels \
+        --labels_map_path=config/labels_map.pbtxt \
+        --output_path=data/mixed.record
 ```
 This program already splits the images into training and evaluation TF Record files. By default is 75% for training and 25% for evaluation.
 The final files structure should look like this:
-
-```Console
-mixed
-    L labels
-         L img_01.xml
-         L img_02.xml
-         L ...
-    L img_01.jpg
-    L img_02.jpg
-    L ...
-    L mixed_train.record
-    L mixed_eval.record
-
-```
 
 The converted TensorFlow Record files for the training and evaluation can also be downloaded here:
 - [mixed_train.record](https://drive.google.com/open?id=1orq0y-8GtfOWl1tBko03rSZT7b3sVfBf)
 - [mixed_eval.record](https://drive.google.com/open?id=18nLlxkdJtwfbOaFvpdLhJXrknfzwNNKw) 
 
-### Bosch
+### Bosch dataset
 The bosch dataset has annotations in YAML format, and the `create_tf_record_yaml.py` is used.
 
 ```console
 # copy all the training data to one folder
 $ find dataset/Bosch/train/ -type f -print0 | xargs -0 mv -t dataset/Bosch/train
+
 # Create the train and test tfrecord
-$ python3 CarND-Capstone/Traffic_Light_Detection/create_tf_record_yaml.py --output_path CarND-Capstone/Traffic_Light_Detection/training/data/train_bosch.record --path_to_yaml dataset/Bosch/train.yaml --path_to_images dataset/Bosch/train
-$ python3 CarND-Capstone/Traffic_Light_Detection/create_tf_record_yaml.py --output_path CarND-Capstone/Traffic_Light_Detection/training/data/test_bosch.record --path_to_yaml dataset/Bosch/test.yaml --path_to_images dataset/Bosch/test
+$ python3 create_tf_record_yaml.py \
+        --output_path data/train_bosch.record \
+        --path_to_yaml ../../dataset/Bosch/train.yaml \
+        --path_to_images ../../dataset/Bosch/train 
+$ python3 create_tf_record_yaml.py \
+        --output_path data/test_bosch.record \
+        --path_to_yaml ../../dataset/Bosch/test.yaml \
+        --path_to_images ../../dataset/Bosch/test 
 ```
-### LISA
+### LISA dataset
 The bosch dataset has annotations in YAML format, and the `create_tf_record_yaml.py` is used.
 
 ```console
 # repeat for as many dayClip's as you want there are 13
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py 
-        --output_path CarND-Capstone/Traffic_Light_Detection/training/data/train_lisa1.record 
-        --csv_input dataset/LISA/Annotations/dayTrain/dayClip1/frameAnnotationsBOX.csv 
-        --path_to_images dataset/LISA/dayTrain/dayClip1/frames/
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py 
-        --output_path CarND-Capstone/Traffic_Light_Detection/training/data/test_lisa1.record 
-        --csv_input dataset/LISA/Annotations/dayTrain/daySequence1/frameAnnotationsBOX.csv 
-        --path_to_images dataset/LISA/dayTrain/daySequence1/frames/
-$ python3 Traffic_Light_Detection/generate_tfrecords_csv.py 
-        --output_path CarND-Capstone/Traffic_Light_Detection/training/data/test_lisa2.record 
-        --csv_input dataset/LISA/Annotations/dayTrain/daySequence2/frameAnnotationsBOX.csv 
-        --path_to_images dataset/LISA/dayTrain/daySequence2/frames/
+$ python3 create_tf_record_csv.py \
+        --output_path data/train_lisa1.record \
+        --csv_input ../../dataset/LISA/Annotations/dayTrain/dayClip1/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/dayTrain/dayClip1/frames/ 
+$ python3 create_tf_record_csv.py \
+        --output_path data/test_lisa1.record \
+        --csv_input ../../dataset/LISA/Annotations/daySequence1/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/daySequence1/frames/
+$ python3 create_tf_record_csv.py \
+        --output_path data/test_lisa2.record \
+        --csv_input ../../dataset/LISA/Annotations/daySequence2/frameAnnotationsBOX.csv \
+        --path_to_images ../../dataset/LISA/daySequence2/frames/
 ```
 
 ## Training 
 
 ### Model
 As Carla the self driving car is installed with Tensorflow 1.3.0 we need to train the model using that version of Tensorflow, and therefore we need this older pretrained model to do the transfer learning from [ssd_mobilenet_v1_coco_11_06_2017](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz)
-place the model in CarND-Capstone/Traffic_Light_Detection/models/
+place the model in CarND-Capstone/Traffic_Light_Detection/models/ssd_mobilenet_v1_coco_2018_01_28
 
 ### Configuration File
 The config file is dependent of the model and datasets used. We adjusted our config file to **sd_mobilenet_v1_coco model** and the mixed dataset of 1833 images.
@@ -119,19 +116,25 @@ Taking the template config file provided by Tensorflow, we simply made the follo
 
 ### Training
 #### Training locally
-Before we can start training using Tensorflow object detection we need to setup our environment following the [Installation instructions]
-It is important to be in the /models/research dir when running 
-`export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim` as we have not copied slim to CarND-Capstone
+Before we can start training using Tensorflow object detection we need to setup our environment following the [Installation instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
+It is important to be in the /models/research dir when running
+``` bash
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+```
+as we have not copied slim to CarND-Capstone
 
 The model can now be trained
 ```console
-$ cd CarND-Capstone/Traffic_Light_Detection/training
-$ python3 train.py --logtostderr --train_dir=models/train --pipeline_config_path=ssd_mobilenet_v1_coco.config
+$  python3 model_main.py /
+        --pipeline_config_path=config/ssd_mobilenet_v1.config /
+        --model_dir=models/fine_tuned/ssd_mobilenet /
+        --sample_1_of_n_eval_examples=10 /
+        --alsologtostderr /
 ```
 #### Training Colab
 We trained the model using Colab in a GPU for 20,000 global steps on the Mixed Dataset. The whole training took approximately 9 hours. The list of parameters used: 
 - batch_size = 24
-- Steps = 20000
+- Steps = 100000
 - Learning_rate = 0.004
 - Anchors min scale = 0.1
 - Anchors max scale = 0.5
@@ -224,15 +227,15 @@ Philipsen, M. P., Jensen, M. B., Møgelmose, A., Moeslund, T. B., & Trivedi, M. 
 [//]: # (Image References)
 
 [image1]: ./test_images/sim_r.jpg "Sim R"
-[image2]: ./test_images_result/sim_r_result.png "Sim R result"
-[image3]: ./test_images_result/sim_u_result.png  "Sim U result"
-[image4]: ./test_images_result/sim_y_result.png "sample 4"
-[image5]: ./test_images_result/uda_lights_g_result.png "sample-5"
-[image6]: ./test_images_result/uda_lights_y_result.png "sample 6"
-[image7]: ./test_images_result/uda_loop_g_result.png "sample 7"
-[image8]: ./test_images_result/uda_loop_r_result.png "sample 8"
-[image9]: ./test_images_result/uda_loop_u_2_result.png "sample 9"
-[image10]: ./test_images_result/uda_loop_u_result.png  "sample 10"
-[image11]: ./test_images_result/uda_training_g_result.png "sample 11"
-[image12]: ./test_images_result/uda_training_r_result.png  "sample-12"
-[image13]: ./test_images_result/uda_training_y_result.png  "sample-13"
+[image2]: ./test_images_result/sim_r_result.jpg "Sim R result"
+[image3]: ./test_images_result/sim_u_result.jpg  "Sim U result"
+[image4]: ./test_images_result/sim_y_result.jpg "sample 4"
+[image5]: ./test_images_result/uda_lights_g_result.jpg "sample-5"
+[image6]: ./test_images_result/uda_lights_y_result.jpg "sample 6"
+[image7]: ./test_images_result/uda_loop_g_result.jpg "sample 7"
+[image8]: ./test_images_result/uda_loop_r_result.jpg "sample 8"
+[image9]: ./test_images_result/uda_loop_u_2_result.jpg "sample 9"
+[image10]: ./test_images_result/uda_loop_u_result.jpg  "sample 10"
+[image11]: ./test_images_result/uda_training_g_result.jpg "sample 11"
+[image12]: ./test_images_result/uda_training_r_result.jpg  "sample-12"
+[image13]: ./test_images_result/uda_training_y_result.jpg  "sample-13"
