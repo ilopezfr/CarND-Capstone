@@ -20,11 +20,7 @@ The following table shows an overview of the most important files:
 | File | Description |
 |------|-------------|
 | README.md | This file |
-<<<<<<< HEAD
-| data/ | Folder containing waypoint information (maps) and camera calibration data |
-=======
 | data/ | Folder containing waypoint information (maps), camera calibration data as well as training and test images |
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 | ros/launch/styx.launch | Launch script for simulator environment |
 | ros/launch/site.launch | Launch script for real environment |
 | src/styx/ | Folder containing scripts to connect ROS to the simulator by providing input/output ROS topics |
@@ -122,13 +118,8 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
 sudo apt-get install ros-kinetic-desktop-full
-<<<<<<< HEAD
-sudo ROSdep init
-ROSdep update
-=======
 sudo rosdep init
 rosdep update
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
 ```
@@ -139,36 +130,6 @@ Then you need to install the Dataspeed ADAS drive-by-wire kit [One Line SDK Inst
 sudo apt-get update
 sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
 <make sure you are in the ros subdirectory of this repository>
-<<<<<<< HEAD
-ROSdep install --from-paths src --ignore-src --ROSdistro=kinetic -y
-```
-
-After downloading this repository you need to make sure that you have all the necessary packages installed.
-
-```console
-git pull https://github.com/CyberAMS/CarND-Capstone
-pip install -r requirements.txt
-sudo apt-get install python-termcolor
-```
-
-### 3. Udacity Simulator
-
-Finally, you need to download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
-
-## 2. ROS nodes and topics
-
-### 1. Communication overview
-
-The Udacity Carla ROS environment for this project uses the following nodes and topics.
-
-![alt text][image1]
-
-The `/waypoint_loader` reads the map or trajectory information and publishes a list of waypoints that the vehicle can follow safely. The `/tl_detector` node takes this information and the camera image from the vehicle - either simulation or real - and publishes the state of the traffic light ahead (`GREEN`, `YELLOW`, `RED` or `UNKNOWN`). The above diagram shows the case for the simulated environment in which the `/styx_server` node publishes all the relevant vehicle state and sensor information as well as receives the necessary control signals for steering (not shown), throttle (not shown) and braking. The `/waypoint_updater` node determines the desired speed for the waypoints ahead. The `/pure_pursuit` node calculates the drive-by-wire commands for the `dbw_node` node based on the information about the waypoints ahead.
-
-### 2. ROS node waypoint_updater.py
-
-The `/waypoint_updater` node constantly looks for the next `LOOKAHEAD_WPS` waypoints. If the next traffic light is either `GREEN` or `UNKNOWN` (`self.stopline_wp_idx == -1`), it will not change the desired speed at the waypoints ahead. If the next traffic light is either `RED` or `YELLOW`, it will use decelerating speed for the waypoints ahead. It is important to mention that the vehicle might detect a `RED` or `YELLOW` traffic light, but will only react to it if the stop line of this traffic light is within distance of the next `LOOKAHEAD_WPS` waypoints.
-=======
 rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
 ```
 
@@ -197,7 +158,6 @@ The `/waypoint_loader` reads the map or trajectory information and publishes a l
 ### 2. ROS node waypoint_updater.py
 
 The `/waypoint_updater` node constantly looks for the next `LOOKAHEAD_WPS = 100` waypoints. If the next traffic light is either `GREEN` or `UNKNOWN` (`self.stopline_wp_idx == -1`), it will not change the desired speed at the waypoints ahead. If the next traffic light is either `RED` or `YELLOW`, it will use decelerating speed for the waypoints ahead. It is important to mention that the vehicle might detect a `RED` or `YELLOW` traffic light, but will only react to it if the stop line of this traffic light is within distance of the next `LOOKAHEAD_WPS` waypoints.
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 
 ```python
 def generate_lane(self):
@@ -228,51 +188,6 @@ def decelerate_waypoints(self, waypoints, closest_idx):
 		p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
 		temp.append(p)
 	return temp
-<<<<<<< HEAD
-```
-
-### 3. ROS node twist_controller.py
-
-The `/twist_controller.py` node uses a yaw controller and throttle controller to determine steering, throttle and braking to keep the desired direction and speed. If the speed gets close to zero, the throttle is set to zero and the brake is engaged to hold the vehicle in place.
-
-### 4. ROS node tl_detector.py
-
-The `/tl_detector' node constantly determines whether or not an incoming image needs to be processed. Only every `LIGHT_PROCESS_THRESHOLD`-th image will be processed. The detected traffic light state is only valid if it has been detected `STATE_COUNT_THRESHOLD` times in a row. The function either returns the waypoint index of the stop line when the traffic light is `RED` or `YELLOW` or it returns `-1` if no traffic light stop state has been detected.
-
-```python
-def image_cb(self, msg):
-	self.camera_image = msg
-	if ((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0):
-		# traffic light must be processed
-		light_wp, state = self.process_traffic_lights()
-	else:
-		light_wp = self.last_wp # use previous value
-		state = self.last_state # use previous value
-	self.traffic_count += 1
-	if (self.state != state):
-		self.state_count = 0
-		self.state = state
-	if (self.state_count >= STATE_COUNT_THRESHOLD):
-		self.last_state = self.state
-		light_wp = light_wp if ((state == TrafficLight.RED) or (state == TrafficLight.YELLOW)) else -1
-		self.last_wp = light_wp
-		self.upcoming_red_light_pub.publish(Int32(light_wp))
-	else:
-		self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-	self.state_count += 1
-```
-
-The following code is used to display debugging information about the actually correct and the detected traffic light states. It works very well if `python-termcolor` has been installed as mentioned in the above section.
-
-```python
-if bDEBUG:
-	ROSpy.logwarn("----------------------------------------------------------------------")
-classified_state = self.get_light_state(closest_light)
-if bDEBUG:
-	correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
-	detected_state_str = self.state_to_string("Detected light state   ", classified_state)
-	ROSpy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
-=======
 ```
 
 ### 3. ROS node twist_controller.py
@@ -320,21 +235,11 @@ if bDEBUG and (classified_state != 4):
 	correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
 	detected_state_str = self.state_to_string("Detected light state   ", classified_state)
 	print("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 return line_wp_idx, classified_state
 ```
 
 ### 5. TLClassifier object
 
-<<<<<<< HEAD
-The `TLClassifier' class in `tl_classifier.py` offers the method `get_classification` that calls TensorFlow to run the inference for a single image with the method `run_inference_for_single_image`.
-
-```python
-def get_classification(self, image):
-	image_np = self.load_image_into_numpy_array(image)
-	output_dict = self.run_inference_for_single_image(image_np, self.detection_graph)
-	text_string = "Classified light state : {0} with probability {1}"
-=======
 The `TLClassifier` class in `tl_classifier.py` offers the method `get_classification` that calls TensorFlow to run the inference for a single image with the method `run_inference_for_single_image`. It determines the traffic light with the largest bounding box and uses it to detect the state. At the end it publishes the image with the marked up bounding box.
 
 ```python
@@ -342,22 +247,10 @@ def get_classification(self, image):
 	image_np = self.load_image_into_numpy_array(image)
 	output_dict = self.run_inference_for_single_image(image_np, self.detection_graph)
 	text_string = "Classified light (idx {0}) state : {1} with probability {2}"
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 	if (output_dict['detection_scores'][0] > 0.5):
 		text_string += " > 0.5"
 	else:
 		text_string += " <= 0.5"
-<<<<<<< HEAD
-	ROSpy.logwarn(text_string.format(output_dict['detection_classes'][0],output_dict['detection_scores'][0]))
-	if (output_dict['detection_scores'][0] > 0.5):
-		if (output_dict['detection_classes'][0] == 3 ):
-			return TrafficLight.GREEN
-		if (output_dict['detection_classes'][0] == 2 ):
-			return TrafficLight.YELLOW
-		if (output_dict['detection_classes'][0] == 1 ):
-			return TrafficLight.RED
-	return TrafficLight.UNKNOWN
-=======
 	max_box_idx = -1
 	max_box_size = -1.0
 	for i in range(output_dict['num_detections']/2):
@@ -382,7 +275,6 @@ def get_classification(self, image):
 	img_msg = self.bridge.cv2_to_imgmsg(image, encoding="rgb8")
 	self.bounding_box_img_pubs.publish(img_msg)
 	return ret_val
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 ```
 
 ```python
@@ -407,22 +299,11 @@ def run_inference_for_single_image(self,image, graph):
 
 ## 3. Traffic light detection
 
-<<<<<<< HEAD
-We used TensorFlow Object Detection API and fine-tuned with traffic lights data a pre-trained SSD MobileNet on the COCO Dataset. The model is able to detect traffic lights and classify their color into Green, Yellow and Red. 
-
-In the first iteration of this project, we combined three datasets which combined a mix of images from the simulator and from Carla testing site. The combination of these three datasets adds up to a total of 2,613 images. The results of the model sufficiently met our needs, achieving a good balance between accuracy and fast running time.
-
-The [description](./Traffic_Light_Detection/README.md) of the traffic light detection model is located in a separate [folder](./Traffic_Light_Detection/).
-
-
-
-=======
 The traffic light detection is using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). It is based on the [SSD MobileNet model](https://github.com/tensorflow/models/tree/master/research/object_detection/models) which has been pre-trained on the [COCO dataset](http://cocodataset.org/). Additional traffic light data has been used to fine-tune the model. The model is able to detect traffic lights and classify their color into `GREEN`, `YELLOW` and `RED`.
 
 The additional traffic light data consists of a combination of three datasets from the Udacity Simulator and the Udacity Carla vehicle on the test site. The combination of these three datasets adds up to a total of 2613 images. The model achieves a good balance between accuracy and fast running time. The benefit of this approach is that the same model can be used for the simulator environment and the real environment.
 
 The detailed [description](./Traffic_Light_Detection/README.md) of the traffic light detection model is located in a separate [folder](./Traffic_Light_Detection/).
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 
 ## 4. Execution
 
@@ -439,22 +320,6 @@ Start the Udacity Simulator after the Udacity Carla ROS environment of this proj
 
 ### 2. Simulation results
 
-<<<<<<< HEAD
-Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information.
-
-<img src="docu_images/190303_StAn_Udacity_Simulator_Run_01_small.gif" width="100%">
-
-### 3. Commands to test the code in the real environment
-
-Download the [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity Carla vehicle. Extract the content and run the ROS bag.
-
-```console
-unzip traffic_light_bag_file.zip
-rosbag play -l traffic_light_bag_file/traffic_light_training.bag
-```
-
-Open another terminal and start the Udacity Carla ROS environment of this project with the `site.launch` file.
-=======
 Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information and camera image. The traffic light which is used to determine `RED`, `YELLOW` or `GREEN` is marked up with a bounding box.
 
 <img src="docu_images/190309_StAn_CAP_simulator_smallest.gif" width="100%">
@@ -468,7 +333,6 @@ unzip <your zipped bag files>.zip
 ```
 
 Start the Udacity Carla ROS environment of this project with the `site.launch` file.
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
 
 ```console
 <make sure you are in the ros subdirectory of this repository>
@@ -477,21 +341,6 @@ source devel/setup.sh
 roslaunch launch/site.launch
 ```
 
-<<<<<<< HEAD
-And then ?!?
-
-### 4. Test results
-
-No results yet
-
-## 5. Discussion
-
-The major issue in this project is to set up a pipeline of hardware and software that fulfills the needs and is compatible with the setup in the Udacity Carla vehicle.
-
-## 6. Known issues and possible improvements
-
-As the provided stop line coordinates for the traffic lights are not exact and additional inaccuracy is added by selecting a waypoint close to them, the vehicle sometimes overshoots the stop line.
-=======
 Open another terminal and open an image viewer to see the camera image.
 
 ```console
@@ -529,4 +378,3 @@ The second challenge is to find an approach to detect traffic lights in front of
 ## 6. Known issues and possible improvements
 
 As the provided stop line coordinates for the traffic lights in the Udacity Simulator are not exact and additional inaccuracy is added by selecting a waypoint close to them, the vehicle sometimes overshoots the stop line.
->>>>>>> 6051eacec42cdd06b5eb1e7b4428ebae981eea71
