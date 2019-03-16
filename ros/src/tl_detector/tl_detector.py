@@ -28,6 +28,19 @@ class TLDetector(object):
         self.camera_image = None
         self.lights = []
 
+        self.state = TrafficLight.UNKNOWN
+        self.last_state = TrafficLight.UNKNOWN
+        self.last_wp = -1
+        self.state_count = 0
+        self.traffic_count = 0
+
+        config_string = rospy.get_param("/traffic_light_config")
+        self.config = yaml.load(config_string)
+
+        self.bridge = CvBridge()
+        self.light_classifier = TLClassifier()
+        self.listener = tf.TransformListener()
+
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
@@ -41,20 +54,7 @@ class TLDetector(object):
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1)
 
-        config_string = rospy.get_param("/traffic_light_config")
-        self.config = yaml.load(config_string)
-
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-
-        self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
-        self.listener = tf.TransformListener()
-
-        self.state = TrafficLight.UNKNOWN
-        self.last_state = TrafficLight.UNKNOWN
-        self.last_wp = -1
-        self.state_count = 0
-        self.traffic_count = 0
 
         rospy.spin()
 
@@ -211,13 +211,13 @@ class TLDetector(object):
         if closest_light:
             classified_state = self.get_light_state(closest_light)
             if bDEBUG and (classified_state != 4):
-                # rospy.logwarn("----------------------------------------------------------------------")
-                print("----------------------------------------------------------------------")
                 correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
                 detected_state_str = self.state_to_string("Detected light state   ", classified_state)
                 # rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
                 print("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
             return line_wp_idx, classified_state
+            # rospy.logwarn("----------------------------------------------------------------------")
+            print("----------------------------------------------------------------------")
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
