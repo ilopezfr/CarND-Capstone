@@ -38,6 +38,8 @@ class TLDetector(object):
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
+        self.tld_enabled_pub = rospy.Publisher('/tld_enabled', Bool, queue_size=1)
+
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
@@ -59,8 +61,7 @@ class TLDetector(object):
 		
         rospy.spin()
 
-        # send initialization message
-        self.tld_enabled_pub = rospy.Publisher('/tld_enabled', Bool, queue_size=1)        
+        # send initialization done message
         self.tld_enabled_pub.publish(True)
 
     def pose_cb(self, msg):
@@ -220,9 +221,10 @@ class TLDetector(object):
                 detected_state_str = self.state_to_string("Detected light state   ", classified_state)
                 # rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
                 print("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
-            return line_wp_idx, classified_state
             # rospy.logwarn("----------------------------------------------------------------------")
             print("----------------------------------------------------------------------")
+            self.tld_enabled_pub.publish(True)
+            return line_wp_idx, classified_state
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':

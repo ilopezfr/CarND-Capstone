@@ -72,7 +72,7 @@ class DBWNode(object):
         self.linear_vel = None
         self.angular_vel = None
         self.trottle = self.steering = self.brake = 0
-		self.tld_enabled = False
+        self.tld_enabled = False
 
         # TODO: Subscribe to all the topics you need to
         rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb)
