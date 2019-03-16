@@ -36,11 +36,11 @@ class Controller(object):
         
         self.iteration_count = 0
 
-    def control(self, current_vel, dbw_enabled, linear_vel, angular_vel):
+    def control(self, current_vel, dbw_enabled, tld_enabled, linear_vel, angular_vel):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
         # rospy.logwarn("dbw_enabled: {0}".format(dbw_enabled))
-        if not dbw_enabled:
+        if not (dbw_enabled and tld_enabled):
             self.throttle_controller.reset()
             return 0., 0., 0.
         

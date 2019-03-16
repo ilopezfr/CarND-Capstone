@@ -6,6 +6,7 @@ from styx_msgs.msg import TrafficLightArray, TrafficLight
 from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from std_msgs.msg import Bool
 from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
@@ -55,8 +56,12 @@ class TLDetector(object):
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1)
 
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-
+		
         rospy.spin()
+
+        # send initialization message
+        self.tld_enabled_pub = rospy.Publisher('/tld_enabled', Bool, queue_size=1)        
+        self.tld_enabled_pub.publish(True)
 
     def pose_cb(self, msg):
         self.pose = msg
