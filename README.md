@@ -387,3 +387,6 @@ The output to the log file is not necessarily purged in strict order of the indi
 1. Changed the sequence of debugging and print statements to finish each `process_traffic_lights` call in `tl_detector` with a series of dashes.
 1. Changed the sequence of commands inside the `__init__` method of the `tl_detector` node to ensure all variables are defined and initialized before any callbacks to subscribed topics are called.
 1. Added the `/tld_enabled` topic that is published after the `__init__` method of the `tl_detector` node is finished and every time `process_traffic_lights` in `tl_detector` is finished. This topic is read by the `dbw_node` node and sets the `tld_enabled` flag from `False` to `True`. The `tld_enabled` flag is forwarded to the `control` method of the `controller` object inside the `twist_controller` file. The `controller` does not apply throttle and fully applies the brake until `tld_enabled` is `True`.
+1. Retrained the traffic light classifier model with augmented images.
+1. Reduced the traffic light detection probability threshold in `tl_classifier` from 0.5 to 0.35 and made it a parameter `TL_PROB_THRESHOLD`.
+1. Added a semaphore `self.in_process` to `tl_detector` to prevent calling the traffic light classifier again before the previous call finished.
