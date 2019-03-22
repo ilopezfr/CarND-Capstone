@@ -28,6 +28,7 @@ class TLDetector(object):
         self.waypoints_2d = None
         self.camera_image = None
         self.lights = []
+        self.in_process = False
 
         self.state = TrafficLight.UNKNOWN
         self.last_state = TrafficLight.UNKNOWN
@@ -87,7 +88,7 @@ class TLDetector(object):
         #rospy.logwarn("Image callback :")
         self.has_image = True
         self.camera_image = msg
-        if ((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0):
+        if (((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0) and not (self.in_process)):
             # traffic light must be processed
             #rospy.logwarn("Processing traffic light image")
             light_wp, state = self.process_traffic_lights()
@@ -95,7 +96,8 @@ class TLDetector(object):
             #rospy.logwarn("Skipping processing traffic light image.")
             light_wp = self.last_wp # use previous value
             state = self.last_state # use previous value
-        self.traffic_count += 1
+        if not (self.in_process):
+            self.traffic_count += 1
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -191,6 +193,7 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+        self.in_process = True
         closest_light = None
         line_wp_idx = None
         
@@ -224,7 +227,9 @@ class TLDetector(object):
             # rospy.logwarn("----------------------------------------------------------------------")
             print("----------------------------------------------------------------------")
             self.tld_enabled_pub.publish(True)
+            self.in_process = False
             return line_wp_idx, classified_state
+        self.in_process = False
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
