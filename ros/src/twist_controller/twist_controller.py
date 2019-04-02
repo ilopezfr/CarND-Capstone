@@ -59,14 +59,14 @@ class Controller(object):
         throttle = self.throttle_controller.step(vel_error, sample_time)
         brake = 0
 
-        if ((linear_vel == 0. and current_vel < 0.1) or (not tld_enabled)):
+        if ((linear_vel == 0. and current_vel < 0.5) or (not tld_enabled)):
             throttle = 0
             brake = 700  # N*m # 700 for real car - simulator would only require 400
         
         elif throttle < 0.1 and vel_error < 0:
             throttle = 0
             decel = max(vel_error, self.decel_limit)
-            brake = abs(decel)*self.vehicle_mass*self.wheel_radius
+            brake = min(2*abs(decel)*self.vehicle_mass*self.wheel_radius, 700)
 
         if (bDEBUG & ((self.iteration_count % DEBUG_THRESHOLD) == 0)):
             rospy.logwarn("----------------------------------------------------------------------")

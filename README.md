@@ -390,3 +390,4 @@ The output to the log file is not necessarily purged in strict order of the indi
 1. Retrained the traffic light classifier model with augmented images.
 1. Reduced the traffic light detection probability threshold in `tl_classifier` from 0.5 to 0.35 and made it a parameter `TL_PROB_THRESHOLD`.
 1. Added a semaphore `self.in_process` to `tl_detector` to prevent calling the traffic light classifier again before the previous call finished.
+1. Changed `twist_controller.py` to apply full brake at speed below 0.5 (instead of 0.1). Also doubled normal brake torque and limited it to 700.
