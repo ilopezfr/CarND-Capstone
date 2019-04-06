@@ -103,7 +103,7 @@ class WaypointUpdater(object):
         for i, wp in enumerate(waypoints):
             p = Waypoint()
             p.pose = wp.pose
-            stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # the waypoints are meassured from center so substract 2 to have the front of the car stop at the light
+            stop_idx = max(self.stopline_wp_idx - closest_idx - 5, 0) # the waypoints are meassured from center so substract 2 to have the front of the car stop at the light, for safety we set it to 5
             dist = self.distance(waypoints, i, stop_idx)
             vel = math.sqrt(2 * MAX_DECEL * dist)
             if vel < 1.:
