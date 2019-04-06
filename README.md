@@ -392,4 +392,4 @@ The output to the log file is not necessarily purged in strict order of the indi
 1. Added a semaphore `self.in_process` to `tl_detector` to prevent calling the traffic light classifier again before the previous call finished.
 1. Changed `twist_controller.py` to apply full brake at speed below 0.5 (instead of 0.1). Also doubled normal brake torque and limited it to 700.
 1. Changed `waypoint_updater.py` to only call `publish_waypoints` if all variables are initialized
-1. Increased offset distance from stop line from 2 to 5 meters in `decelerate_waypoints` in `waypoint_updater`.
+1. Increased offset distance from stop line from 2 to 3 meters in `decelerate_waypoints` in `waypoint_updater`.
