@@ -59,6 +59,7 @@ The following table shows an overview of the most important files:
 1. Discussion
 1. Known issues and possible improvements
 1. Changes after first project submission
+1. Potential future improvements
 
 [//]: # (Image References)
 
@@ -393,3 +394,8 @@ The output to the log file is not necessarily purged in strict order of the indi
 1. Changed `twist_controller.py` to apply full brake at speed below 0.5 (instead of 0.1). Also doubled normal brake torque and limited it to 700.
 1. Changed `waypoint_updater.py` to only call `publish_waypoints` if all variables are initialized
 1. Increased offset distance from stop line from 2 to 3 meters in `decelerate_waypoints` in `waypoint_updater`.
+
+## 8. Potential future improvements
+
+1. Reduce the `LIGHT_PROCESS_THRESHOLD` (e.g. from 4 to 2) and `STATE_COUNT_THRESHOLD` (from 3 to 1) parameters in `tl_detector` to account for improved hardware resources and process more camera images, i.e. more frequently.
+1. Accelerate quicker to respond faster to traffic light state changes. Reset `ki` to zero in `twist_controller.py` when going from brake to throttle. Also use a higher `kp` value - maybe 0.5 - and `mx` value - maybe 0.5.
