@@ -6,6 +6,7 @@ from styx_msgs.msg import TrafficLightArray, TrafficLight
 from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from std_msgs.msg import Bool
 from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
@@ -27,6 +28,22 @@ class TLDetector(object):
         self.waypoints_2d = None
         self.camera_image = None
         self.lights = []
+        self.in_process = False
+
+        self.state = TrafficLight.UNKNOWN
+        self.last_state = TrafficLight.UNKNOWN
+        self.last_wp = -1
+        self.state_count = 0
+        self.traffic_count = 0
+
+        config_string = rospy.get_param("/traffic_light_config")
+        self.config = yaml.load(config_string)
+
+        self.tld_enabled_pub = rospy.Publisher('/tld_enabled', Bool, queue_size=1)
+
+        self.bridge = CvBridge()
+        self.light_classifier = TLClassifier()
+        self.listener = tf.TransformListener()
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -41,22 +58,12 @@ class TLDetector(object):
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1)
 
-        config_string = rospy.get_param("/traffic_light_config")
-        self.config = yaml.load(config_string)
-
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-
-        self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
-        self.listener = tf.TransformListener()
-
-        self.state = TrafficLight.UNKNOWN
-        self.last_state = TrafficLight.UNKNOWN
-        self.last_wp = -1
-        self.state_count = 0
-        self.traffic_count = 0
-
+		
         rospy.spin()
+
+        # send initialization done message
+        self.tld_enabled_pub.publish(True)
 
     def pose_cb(self, msg):
         self.pose = msg
@@ -81,7 +88,7 @@ class TLDetector(object):
         #rospy.logwarn("Image callback :")
         self.has_image = True
         self.camera_image = msg
-        if ((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0):
+        if (((self.traffic_count % LIGHT_PROCESS_THRESHOLD) == 0) and not (self.in_process)):
             # traffic light must be processed
             #rospy.logwarn("Processing traffic light image")
             light_wp, state = self.process_traffic_lights()
@@ -89,7 +96,8 @@ class TLDetector(object):
             #rospy.logwarn("Skipping processing traffic light image.")
             light_wp = self.last_wp # use previous value
             state = self.last_state # use previous value
-        self.traffic_count += 1
+        if not (self.in_process):
+            self.traffic_count += 1
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -185,6 +193,7 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+        self.in_process = True
         closest_light = None
         line_wp_idx = None
         
@@ -211,13 +220,16 @@ class TLDetector(object):
         if closest_light:
             classified_state = self.get_light_state(closest_light)
             if bDEBUG and (classified_state != 4):
-                # rospy.logwarn("----------------------------------------------------------------------")
-                print("----------------------------------------------------------------------")
                 correct_state_str = self.state_to_string("Correct light state    ", closest_light.state)
                 detected_state_str = self.state_to_string("Detected light state   ", classified_state)
                 # rospy.logwarn("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
                 print("car_wp_idx: " + str(car_wp_idx) + " stop line position idx: " + str(line_wp_idx))
+            # rospy.logwarn("----------------------------------------------------------------------")
+            print("----------------------------------------------------------------------")
+            self.tld_enabled_pub.publish(True)
+            self.in_process = False
             return line_wp_idx, classified_state
+        self.in_process = False
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':

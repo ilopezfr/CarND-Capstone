@@ -58,6 +58,8 @@ The following table shows an overview of the most important files:
     1. Test results
 1. Discussion
 1. Known issues and possible improvements
+1. Changes after first project submission
+1. Potential future improvements
 
 [//]: # (Image References)
 
@@ -322,7 +324,7 @@ Start the Udacity Simulator after the Udacity Carla ROS environment of this proj
 
 Here is an example of how the car accelerates and stops as required all by itself. On the right you see the debugging information and camera image. The traffic light which is used to determine `RED`, `YELLOW` or `GREEN` is marked up with a bounding box.
 
-<img src="docu_images/190309_StAn_CAP_simulator_smallest.gif" width="100%">
+<img src="https://raw.githubusercontent.com/CyberAMS/CarND-Capstone/master/docu_images/190309_StAn_CAP_simulator_smallest.gif" width="100%">
 
 ### 3. Commands to test the code in the real environment
 
@@ -359,15 +361,15 @@ The following ROS bags from the Udacity Carla vehicle have been tested with the 
 
 The first ROS bag contains a back and forth maneuver around the traffic light. The state of the traffic light is always classified correctly. There is only a short instance at the end when the car stops and the traffic light is `GREEN`. In this case no traffic light is detected with high probability at all. As we only react to `RED` and `YELLOW` traffic lights, this is not a big issue for the given task.
 
-<img src="docu_images/190309_StAn_CAP_just_smallest.gif" width="100%">
+<img src="https://raw.githubusercontent.com/CyberAMS/CarND-Capstone/master/docu_images/190309_StAn_CAP_just_smallest.gif" width="100%">
 
 The second ROS bag contains several full loops around the test site. The state of the traffic light is always classified correctly. There is one repeatable false positive during the loop. A white wall is classified as `GREEN` traffic light. As we only react to `RED` and `YELLOW` traffic lights, this is not a big issue for the given task.
 
-<img src="docu_images/190309_StAn_CAP_loop_smallest.gif" width="100%">
+<img src="https://raw.githubusercontent.com/CyberAMS/CarND-Capstone/master/docu_images/190309_StAn_CAP_loop_smallest.gif" width="100%">
 
 The third ROS bag contains several approaches on the traffic light. The state of the traffic light is mostly classified correctly. There are only a few instances where `RED` and `YELLOW` are mixed up for a very short amount of time. As we react to `RED` and `YELLOW` traffic lights in the same way, this is not a big issue for the given task. Also, when the traffic light is very close, it sometimes is not detected at all. As we stop further away from the traffic light, this is not a big issue for the given task.
 
-<img src="docu_images/190309_StAn_CAP_train_smallest_short.gif" width="100%">
+<img src="https://raw.githubusercontent.com/CyberAMS/CarND-Capstone/master/docu_images/190309_StAn_CAP_train_smallest_short.gif" width="100%">
 
 ## 5. Discussion
 
@@ -378,3 +380,22 @@ The second challenge is to find an approach to detect traffic lights in front of
 ## 6. Known issues and possible improvements
 
 As the provided stop line coordinates for the traffic lights in the Udacity Simulator are not exact and additional inaccuracy is added by selecting a waypoint close to them, the vehicle sometimes overshoots the stop line.
+
+The output to the log file is not necessarily purged in strict order of the individual ROS node calls on all systems.
+
+## 7. Changes after first project submission
+
+1. Changed the sequence of debugging and print statements to finish each `process_traffic_lights` call in `tl_detector` with a series of dashes.
+1. Changed the sequence of commands inside the `__init__` method of the `tl_detector` node to ensure all variables are defined and initialized before any callbacks to subscribed topics are called.
+1. Added the `/tld_enabled` topic that is published after the `__init__` method of the `tl_detector` node is finished and every time `process_traffic_lights` in `tl_detector` is finished. This topic is read by the `dbw_node` node and sets the `tld_enabled` flag from `False` to `True`. The `tld_enabled` flag is forwarded to the `control` method of the `controller` object inside the `twist_controller` file. The `controller` does not apply throttle and fully applies the brake until `tld_enabled` is `True`.
+1. Retrained the traffic light classifier model with augmented images.
+1. Reduced the traffic light detection probability threshold in `tl_classifier` from 0.5 to 0.35 and made it a parameter `TL_PROB_THRESHOLD`.
+1. Added a semaphore `self.in_process` to `tl_detector` to prevent calling the traffic light classifier again before the previous call finished.
+1. Changed `twist_controller.py` to apply full brake at speed below 0.5 (instead of 0.1). Also doubled normal brake torque and limited it to 700.
+1. Changed `waypoint_updater.py` to only call `publish_waypoints` if all variables are initialized
+1. Increased offset distance from stop line from 2 to 3 meters in `decelerate_waypoints` in `waypoint_updater`.
+
+## 8. Potential future improvements
+
+1. Reduce the `LIGHT_PROCESS_THRESHOLD` (e.g. from 4 to 2) and `STATE_COUNT_THRESHOLD` (from 3 to 1) parameters in `tl_detector` to account for improved hardware resources and process more camera images, i.e. more frequently.
+1. Accelerate quicker to respond faster to traffic light state changes. Reset `ki` to zero in `twist_controller.py` when going from brake to throttle. Also use a higher `kp` value - maybe 0.5 - and `mx` value - maybe 0.5.

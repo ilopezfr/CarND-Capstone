@@ -4,6 +4,7 @@ import rospy
 from std_msgs.msg import Bool
 from dbw_mkz_msgs.msg import ThrottleCmd, SteeringCmd, BrakeCmd, SteeringReport
 from geometry_msgs.msg import TwistStamped
+from std_msgs.msg import Bool
 import math
 
 from twist_controller import Controller
@@ -71,11 +72,13 @@ class DBWNode(object):
         self.linear_vel = None
         self.angular_vel = None
         self.trottle = self.steering = self.brake = 0
+        self.tld_enabled = False
 
         # TODO: Subscribe to all the topics you need to
         rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb)
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb)
         rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_cb)
+        rospy.Subscriber('/tld_enabled', Bool, self.tld_enabled_cb)
 
         self.loop()
 
@@ -86,7 +89,7 @@ class DBWNode(object):
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
                 self.throttle, self.brake, self.steering = self.controller.control(
-                    self.current_vel, self.dbw_enabled, self.linear_vel, self.angular_vel)
+                    self.current_vel, self.dbw_enabled, self.tld_enabled, self.linear_vel, self.angular_vel)
 
             if self.dbw_enabled:
                 self.publish(self.throttle, self.brake, self.steering)
@@ -94,6 +97,9 @@ class DBWNode(object):
 
     def dbw_enabled_cb(self, msg):
         self.dbw_enabled = msg.data
+
+    def tld_enabled_cb(self, msg):
+        self.tld_enabled = msg.data
 
     def twist_cb(self, msg):
         self.linear_vel = msg.twist.linear.x

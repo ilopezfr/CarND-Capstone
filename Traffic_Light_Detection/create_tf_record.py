@@ -7,6 +7,10 @@ from object_detection.utils import dataset_util, label_map_util
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
+from data_aug.data_aug import *
+from data_aug.bbox_util import *
+import cv2 
+
 flags = tf.app.flags
 
 flags.DEFINE_string('data_dir', None, 'Path to the folder where the images are stored')
@@ -24,12 +28,8 @@ FLAGS = flags.FLAGS
 def create_tf_example(data_dir, xml_dict, labels_map):
     data = xml_dict['annotation']
     file_path = os.path.join(data_dir, data['filename'])
-    with tf.gfile.GFile(file_path, 'rb') as fid:
-        encoded_jpg = fid.read()
-    encoded_jpg_io = io.BytesIO(encoded_jpg)
-    image = PIL.Image.open(encoded_jpg_io)
-    if image.format != 'JPEG':
-        raise ValueError('Image format not JPG')
+
+
 
     xmin = []
     ymin = []
@@ -38,19 +38,47 @@ def create_tf_example(data_dir, xml_dict, labels_map):
     classes = []
     classes_text = []
     truncated = []
+    bboxes =[]
+
+    ## rotate data augmentation
+    for obj in data['object']:
+        bboxes.append([float(obj['bndbox']['xmin']),float(obj['bndbox']['ymin']),float(obj['bndbox']['xmax']),float(obj['bndbox']['ymax'])])
     
+    bboxes = np.array(bboxes)
+    img = cv2.imread(file_path)
+    transforms = Sequence([RandomRotate(7),RandomScale(0.5, diff = False)])
+    img, bboxes = transforms(img, bboxes)
+    tempfilepath = "image_processed.jpg"
+    cv2.imwrite(tempfilepath, img)
+
     width = int(data['size']['width'])
     height = int(data['size']['height'])
-    filename = data['filename'].encode('utf8')
+    for bbox in bboxes:
+        if(bbox[0] / width < 1) & (bbox[1] / height < 1) & (bbox[2] / width < 1) & (bbox[3] / height < 1):
+            xmin.append(bbox[0] / width)
+            ymin.append(bbox[1] / height)
+            xmax.append(bbox[2] / width)
+            ymax.append(bbox[3] / height)
+        else:
+            print("Box was outside the image and have been dropped")
+            return False
+    ## rotate data augmentation end
 
+    filename = data['filename'].encode('utf8')
     for obj in data['object']:
-        xmin.append(float(obj['bndbox']['xmin']) / width)
-        ymin.append(float(obj['bndbox']['ymin']) / height)
-        xmax.append(float(obj['bndbox']['xmax']) / width)
-        ymax.append(float(obj['bndbox']['ymax']) / height)
         classes_text.append(obj['name'].encode('utf8'))
         classes.append(labels_map[obj['name']])
         truncated.append(int(obj['truncated']))
+
+
+
+
+    with tf.gfile.GFile(tempfilepath, 'rb') as fid:
+        encoded_jpg = fid.read()
+    encoded_jpg_io = io.BytesIO(encoded_jpg)
+    image = PIL.Image.open(encoded_jpg_io)
+    if image.format != 'JPEG':
+        raise ValueError('Image format not JPG')
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
@@ -73,13 +101,17 @@ def create_tf_record(label_files, data_dir, labels_map, output_path):
     
     writer = tf.python_io.TFRecordWriter(output_path)
     
-    for label_file in tqdm(label_files, desc='Converting', unit=' images'):
-        with tf.gfile.GFile(label_file, 'r') as f:
-            xml = f.read()
-        xml = etree.fromstring(xml)
-        xml_dict = dataset_util.recursive_parse_xml_to_dict(xml)
-        tf_record = create_tf_example(data_dir, xml_dict, labels_map)
-        writer.write(tf_record.SerializeToString())
+    for i in range(0,10):
+        for label_file in tqdm(label_files, desc='Converting', unit=' images'):
+            with tf.gfile.GFile(label_file, 'r') as f:
+                xml = f.read()
+            xml = etree.fromstring(xml)
+            xml_dict = dataset_util.recursive_parse_xml_to_dict(xml)
+            tf_record = create_tf_example(data_dir, xml_dict, labels_map)
+            if tf_record != False:
+                writer.write(tf_record.SerializeToString())
+            else:
+                print("Box was outside the image and image skipped from TFrecord")
     
     writer.close()
 

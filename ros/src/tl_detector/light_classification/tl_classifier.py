@@ -61,6 +61,7 @@ class TLClassifier(object):
         """
         
         # TODO implement light color prediction
+        TL_PROB_THRESHOLD = 0.35
         image_np = self.load_image_into_numpy_array(image)
         # im = PILImage.fromarray(image_np) # debugging if you want to save the images
         # im.save(str(self.imagenumber)+"_result.jpg", "JPEG", quality=80, optimize=True, progressive=True) # debugging if you want to save the images
@@ -69,14 +70,14 @@ class TLClassifier(object):
         # Actual detection.
         output_dict = self.run_inference_for_single_image(image_np, self.detection_graph)
         text_string = "Classified light (idx {0}) state : {1} with probability {2}"
-        if (output_dict['detection_scores'][0] > 0.5):
-            text_string += " > 0.5"
+        if (output_dict['detection_scores'][0] > TL_PROB_THRESHOLD):
+            text_string += " > " + str(TL_PROB_THRESHOLD)
         else:
-            text_string += " <= 0.5"
+            text_string += " <= " + str(TL_PROB_THRESHOLD)
         max_box_idx = -1
         max_box_size = -1.0
         for i in range(output_dict['num_detections']/2):
-            if (output_dict['detection_scores'][i] > 0.5):
+            if (output_dict['detection_scores'][i] > TL_PROB_THRESHOLD):
                 x = output_dict['detection_boxes'][i][3] - output_dict['detection_boxes'][i][1]
                 y = output_dict['detection_boxes'][i][2] - output_dict['detection_boxes'][i][0]
                 box_size = math.sqrt((x * x) + (y * y))
@@ -87,7 +88,7 @@ class TLClassifier(object):
                     max_box_size = box_size
 
         ret_val = TrafficLight.UNKNOWN
-        if ((max_box_idx >= 0) and (output_dict['detection_scores'][max_box_idx] > 0.5)):
+        if ((max_box_idx >= 0) and (output_dict['detection_scores'][max_box_idx] > TL_PROB_THRESHOLD)):
             # rospy.logwarn(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
             print(text_string.format(max_box_idx, output_dict['detection_classes'][max_box_idx], output_dict['detection_scores'][max_box_idx]))
             image = self.add_bounding_box_to_image(image, output_dict['detection_boxes'][max_box_idx])
