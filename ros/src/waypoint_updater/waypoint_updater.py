@@ -66,7 +66,7 @@ class WaypointUpdater(object):
         y = self.pose.pose.position.y
         closest_idx = self.waypoint_tree.query([x, y], 1)[1]
 
-        # Check if closest is ahead or behind the vihecle
+        # Check if closest is ahead or behind the vehicle
         closest_coord = self.waypoints_2d[closest_idx]
         prev_coord = self.waypoints_2d[closest_idx-1]
 
