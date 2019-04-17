@@ -33,33 +33,33 @@ The following table shows an overview of the most important files:
 | src/twist_controller/yaw_controller.py | Script that determines steering |
 | src/waypoint_follower/ | Folder containing scripts to determine drive-by-wire signals to follow the desired waypoints |
 | src/waypoint_loader/ | Folder containing scripts to load the necessary waypoints (map) |
-| src/waypoint_updater/waypoint_updater.py | Waypoint node that listens to the traffic light ROS topic and determins the desired speed at each waypoint ahead |
-| Traffic_Light_Detection/ | Folder containing everything related to training the TensorFlow CNN model for traffic light classification |
+| src/waypoint_updater/waypoint_updater.py | Waypoint node that listens to the traffic light ROS topic and determines the desired speed at each waypoint ahead |
+| Traffic_Light_Detection/ | Subrepo containing all files to construct the traffic light detector and classifier with TensorFlow API  |
 
 ---
 
 ## Content
 
-1. Tool chain setup
-    1. Considerations for the best simulation and test environment
-    1. Ubuntu, ROS and necessary packages
-    1. Udacity Simulator
-1. ROS nodes and topics
+[1. Tool chain setup](#tool-chain-setup)
+    [1. Considerations for the best simulation and test environment]
+    [2. Ubuntu, ROS and necessary packages]
+    [3. Udacity Simulator]
+[2. ROS nodes and topics]
     1. Communication overview
-    1. ROS node waypoint_updater.py
-    1. ROS node twist_controller.py
-    1. ROS node tl_detector.py
-    1. TLClassifier object
-1. Traffic light detection
-1. Execution
+    2. ROS node waypoint_updater.py
+    3. ROS node twist_controller.py
+    4. ROS node tl_detector.py
+    5. TLClassifier object
+[3. Traffic light detection]
+[4. Execution]
     1. Commands to start the simulation
-    1. Simulation results
-    1. Commands to test the code in the real environment
-    1. Test results
-1. Discussion
-1. Known issues and possible improvements
-1. Changes after first project submission
-1. Potential future improvements
+    2. Simulation results
+    3. Commands to test the code in the real environment
+    4. Test results
+[5. Discussion]
+[6. Known issues and possible improvements]
+[7. Changes after first project submission]
+[8. Potential future improvements]
 
 [//]: # (Image References)
 
