@@ -40,26 +40,26 @@ The following table shows an overview of the most important files:
 
 ## Content
 
-- [1. Tool chain setup](#tool-chain-setup)
-	- [1. Considerations for the best simulation and test environment]
-	- [2. Ubuntu, ROS and necessary packages]
-        - [3. Udacity Simulator]
-- [2. ROS nodes and topics](#ros-nodes-and-topics)
-        1. Communication overview
-        2. ROS node waypoint_updater.py
-        3. ROS node twist_controller.py
-        4. ROS node tl_detector.py
-        5. TLClassifier object
-- [3. Traffic light detection]
-- [4. Execution](#execution)
-        1. Commands to start the simulation
-        2. Simulation results
-        3. Commands to test the code in the real environment
-        4. Test results
-- [5. Discussion](#discussion)
-- [6. Known issues and possible improvements]
-- [7. Changes after first project submission]
-- [8. Potential future improvements]
+- [1. Tool chain setup](#1-tool-chain-setup)
+	- 1. Considerations for the best simulation and test environment
+	- 2. Ubuntu, ROS and necessary packages
+	- 3. Udacity Simulator
+- [2. ROS nodes and topics](#2-ros-nodes-and-topics)
+	- 1. Communication overview
+	- 2. ROS node waypoint_updater.py
+	- 3. ROS node twist_controller.py
+	- 4. ROS node tl_detector.py
+	- 5. TLClassifier object
+- [3. Traffic light detection](#3-traffic-light-detection)
+- [4. Execution](#4-execution)
+	- 1. Commands to start the simulation
+	- 2. Simulation results
+	- 3. Commands to test the code in the real environment
+	- 4. Test results
+- [5. Discussion](#5-discussion)
+- [6. Known issues and possible improvements](#6-known-issues-and-possible-improvements)
+- [7. Changes after first project submission](#7-changes-after-first-project-submission)
+- [8. Potential future improvements](#8-potential-future-improvements)
 
 [//]: # (Image References)
 
